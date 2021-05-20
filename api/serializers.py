@@ -7,6 +7,7 @@ class DiseaseSerializer(serializers.ModelSerializer):
     gene = serializers.SerializerMethodField()
     variant = serializers.SerializerMethodField()
     gdr = serializers.SerializerMethodField()
+    vdr = serializers.SerializerMethodField()
 
     @staticmethod
     def get_gene(obj):
@@ -18,7 +19,14 @@ class DiseaseSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def get_gdr(obj):
-        report = obj.reports.filter(name='Gene-Disease').first()
+        report = obj.reports.filter(report_name='Gene-Disease').first()
+        if report:
+            return report.content
+        return ''
+
+    @staticmethod
+    def get_vdr(obj):
+        report = obj.reports.filter(report_name='Variant-Disease').first()
         if report:
             return report.content
         return ''

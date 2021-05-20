@@ -1,0 +1,86 @@
+{% extends 'base_site.html' %}
+{% load render_table from django_tables2 %}
+{% load custom_tags %}
+
+
+{% block button %}
+    <button class='btn btn-primary' type='button' onclick="$('#submit_btn').trigger('click')">Commit</button>
+{% endblock %}
+
+
+{% block content %}
+    <form class='card shadow my-5' id='upload' method='post' action='{% url 'upload' %}' onsubmit='return naCheck(event);'>
+        <button id='submit_btn' type='submit' hidden></button>
+        {% csrf_token %}
+
+        <!-- Page Heading -->
+        <div class='card-header'>
+            <label for='none' class='mr-2'>
+                <input type='radio' id='none' name='select_type' onclick="selectAll(this)" checked> Deselect All Variants
+            </label>
+
+            <label for='all' class='mr-2'>
+                <input type='radio' id='all' name='select_type' onclick="selectAll(this)"> Select All Variants
+            </label>
+
+            <label for='new' class='mr-2'>
+                <input type='radio' id='new' name='select_type' onclick="selectAll(this, 'New')"> Select New Variants Only
+            </label>
+
+            <label for='exist' class='mr-2'>
+                <input type='radio' id='exist' name='select_type' onclick="selectAll(this, 'Exist')"> Select Existing Variants Only
+            </label>
+        </div>
+
+        <!-- Page Body -->
+        <div class='card-body scrollmenu container'>
+            {% if not is_empty.0 %}
+                {{ tables | safe }}
+                <br/>
+            {% endif %}
+        </div>
+    </form>
+
+
+    <link rel='stylesheet' href='//cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css'>
+{% endblock %}
+
+{% block script %}
+    <script>
+        let head = $('table tr th:first'), div = $('<div></div>');
+        div.append($(document.createElement('INPUT')).attr('type', 'hidden').attr('name', 'headers').val(head.text()));
+        head.html(div);
+        $('table tr').each(function () {
+            let item = $(this).find('td:first');
+            let input = $(document.createElement('INPUT'));
+            input.attr('type', 'checkbox')
+                .attr('name', 'submit')
+                .addClass(function () {
+                    return $(item).parents('table').hasClass('new') ? 'new' : 'exists';
+                })
+                .val(item.text());
+            item.html(input);
+        });
+
+        function selectAll(elem, type = null) {
+            if (type) {
+                $.each($(`td :checkbox`), (i, item) => {
+                    $(item).prop('checked', type === $(item).parent().next().text())
+                });
+            } else if (elem.id === 'none') {
+                $('th :checkbox, td :checkbox').prop('checked', false);
+            }else $('th :checkbox, td :checkbox').prop('checked', elem.checked);
+        }
+
+        function naCheck(event) {
+            $('table tr td input:checked').each(function () {
+                let values = $(this).val().split('^')
+                if (values[0] === 'na' || values[1] === 'na') {
+                    alert('invalid row was selected (perhaps na field)');
+                    event.preventDefault();
+                    return false;
+                }
+            });
+        }
+    </script>
+{% endblock %}

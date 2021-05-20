@@ -1,0 +1,102 @@
+{% load widget_tweaks custom_tags %}
+
+
+{% with index=forloop.counter0 nested_form=form.nested sub_index=forloop.counter0|math:3 %}
+    {# Card Headers #}
+    {% if forloop.first and form|get_header %}
+        <div class='card-header h6' data-bs-toggle="collapse" data-bs-target="{{ sub_form.prefix }}">{{ form|get_header }}</div>
+    {% elif form|get_prefix == 'path_item' and '1' in form|get_fields:0|get_label:sub_index.0 and not sub_index.1 %}
+
+        {% if 'PVS1' in form|get_fields:0|get_label:sub_index.0 %}
+            <div class='card-header h6' data-bs-toggle="collapse" data-bs-target="{{ form.prefix }}">For Pathogenicity</div>
+        {% elif 'BA1' in form|get_fields:0|get_label:sub_index.0 %}
+            <div class='card-header h6 mb-4' data-bs-toggle="collapse" data-bs-target="{{ form.prefix }}">Against Pathogenicity</div>
+        {% endif %}
+
+    {% elif form|get_prefix == 'func' or form|get_prefix == 'act' %}
+        <!--hr/-->
+    {% endif %}
+
+    {# Card Body #}
+    <div id='{{ form.prefix }}-div' class='card-body container{% if forloop.first or form|get_prefix == 'dx' %} pb-0{% else %} py-0{% endif %}' {% if form|is_empty:forloop.first %}hidden{% endif %}>
+        <dl class='row mb-0'>
+            {% for hidden_field in form.hidden_fields %}
+                {{ hidden_field }}
+            {% endfor %}
+
+            {% if form|get_prefix == 'act' and forloop.first %}
+                <dt class='other col-4'>{{ super_form.others.label }}</dt>
+                <dd class='other col-4'>{{ super_form.others }}</dd>
+                <dd class='other col-4'></dd>
+            {% endif %}
+
+            {% for field in form|get_fields %}
+                {% if form|get_prefix == 'path_item' and field.name == 'item' %}
+
+                    {% if not sub_index.1 %}
+                        <label id='{{ form.item.id_for_label }}-selector' for='{{ form.prefix }}-item' class='link-primary' data-bs-target='#{{ form.item.id_for_label }}-div' data-bs-toggle='collapse'>
+                            <input type='checkbox' id='{{ form.prefix }}-item' value='{{ sub_index.0|get_values:True }}' onchange='calculate_score($(this))' {% if not form|is_empty:'path' %}checked{% endif %}/>
+                            {{ field|get_label:sub_index.0 }}
+                        </label>
+                    {% endif %}
+                    {% render_field field hidden='' value=sub_index.0 %}
+
+                {% elif form.branch.value == 'gp' and field.name == 'func_sig' or field.name == 'report_name' %}
+
+                    {% render_field field value=field|get_label:index hidden='' %}
+
+                {% elif field|is_special_case:index %}
+
+                    {% if form|get_prefix == 'path_item' and field.name == 'source_type' %}
+                        </dl>
+                        <dl class=' row mb-0 collapse{% if not form|is_empty:'path' %} show{% elif sub_index.1 %} hidden{% endif %}' id='{{ form.item.id_for_label }}-div'>
+                    {% endif %}
+
+                    <dt class='col-4'>{{ field|get_label:index }}</dt>
+
+                    {% if field|widget_type == 'textarea' %}
+
+                        <dd class='col-5'>{% render_field field %}</dd>
+                        <dd class='col-3'></dd>
+
+                    {% else %}
+
+                        <dd class='col-4'>{% render_field field style='width:100%;' %}</dd>
+                        {% if form|get_prefix == 'path_item' and field.name == 'source_type' and not field.value %}
+                            <script>document.getElementById('{{ field.auto_id }}').value = 'PM'</script>
+                        {% endif %}
+
+                    {% endif %}
+
+                    {% if field|widget_type != 'textarea' %}
+                        <dd class='offset-md-3 col-1 btn-group'>
+                            {% if field.name == 'source_type' and form|get_prefix != 'func' or field.name == 'item' %}
+
+                                <button type='button' class='btn btn-primary'
+                                        onclick='add_item($(this){% if field.name == 'content' %}, true{% endif %})'>
+                                    <i class='fa fa-plus'></i>
+                                </button>
+
+                                <button type='button' class='btn btn-primary {% if not index or form|get_prefix == 'path_item' and not sub_index.1 %}disabled{% endif %}'
+                                        onclick='delete_item($(this){% if form|get_prefix == 'func' %}, true{% endif %})'>
+                                    <i class='fa fa-trash-o'></i>
+                                </button>
+
+                            {% endif %}
+                        </dd>
+                    {% endif %}
+
+                {% else %}
+
+                    {% render_field field hidden='' %}
+
+                {% endif %}
+            {% endfor %}
+            </dl>
+    </div>
+
+    {% for sub_form in nested_form %}
+        {% include 'partials/_sub_form.html' %}
+    {% endfor %}
+
+{% endwith %}

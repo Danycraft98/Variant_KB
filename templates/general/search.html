@@ -1,86 +1,40 @@
-{% extends 'base.html' %}
+{% extends 'base_site.html' %}
+{% load widget_tweaks %}
+
 
 {% block content %}
-    <div class='card shadow mx-auto my-5 ' style='width: 40%'>
-        <div class='card-header'>
-            <h5 class='m-0 text-primary'><i class='fa fa-search mx-2' style='font-size: smaller'></i>Search</h5>
+    <form class='col-6 offset-md-3 card card-body' method='post' action="{% url 'search' %}">
+        {% csrf_token %}
+        <dl class='form-row mb-2'>
+            <dd class='col-12'>{{ form.gene__name__icontains }}</dd>
+            <dd class='col-6'>{{ form.protein__icontains }}</dd>
+            <dd class='col-6'>{{ form.cdna__icontains }}</dd>
+            <dd class='col-6'>{% render_field form.diseases__name__icontains style='width:100%;' %}</dd>
+            <dd class='col-6'>{% render_field form.diseases__name__icontains2 style='width:100%;' %}</dd>
+        </dl>
+
+        <div class='form-group row mt-4'>
+            <div class='offset-md-3 col-6'>
+                <button type='submit' class='btn btn-primary col-12 py-2'>Search</button>
+            </div>
         </div>
-        <div class='card-body mx-5 px-1'>
-            <form method='post' action=''>
-                {% csrf_token %}
-                <div class='mb-4'>
-                    Search by gene name or with variant field(s).
-                </div>
-                <div class='form-group form-row'>
-                    <div class='col-12 input-group'>
-                        <div class='input-group-append'>
-                            <span class='input-group-text text-sm' style='width:125px'>Name</span>
-                        </div>
-                        <label for='name'></label><input id='name' type='text' name='name' class='form-control text-sm'>
-                    </div>
-                </div>
-                <div class='form-group form-row'>
-                    <div class='col-12 input-group'>
-                        <div class='input-group-append'>
-                            <span class='input-group-text text-sm' style='width:125px'>Chromosome</span>
-                        </div>
-                        <label for='chromosome'></label><input id='chromosome' type='text' name='chromosome' class='form-control text-sm'>
-                    </div>
-                </div>
-                <div class='form-group form-row'>
-                    <div class='col-12 input-group'>
-                        <div class='input-group-append'>
-                            <span class='input-group-text text-sm' style='width:125px'>C.</span>
-                        </div>
-                        <label for='cdna'></label><input id='cdna' type='text' name='cdna' class='form-control text-sm'>
-                    </div>
-                </div>
-                <div class='form-group form-row'>
-                    <div class='col-12 input-group'>
-                        <div class='input-group-append'>
-                            <span class='input-group-text text-sm' style='width:125px'>P.</span>
-                        </div>
-                        <label for='protein'></label><input id='protein' type='text' name='protein' class='form-control text-sm'>
-                    </div>
-                </div>
-                <div class='form-group form-row'>
-                    <div class='col-12 input-group'>
-                        <div class='input-group-append'>
-                            <span class='input-group-text text-sm' style='width:125px'>Ref</span>
-                        </div>
-                        <label for='ref'></label><input id='ref' type='text' name='ref' class='form-control text-sm'>
-                    </div>
-                </div>
-                <div class='form-group form-row'>
-                    <div class='col-12 input-group'>
-                        <div class='input-group-append'>
-                            <span class='input-group-text text-sm' style='width:125px'>Alt</span>
-                        </div>
-                        <label for='alt'></label><input id='alt' type='text' name='alt' class='form-control text-sm'>
-                    </div>
-                </div>
-                <div class='form-group form-row mt-4'>
-                    <div class='col-3'></div>
-                    <div class='col-6'>
-                        <button type='submit' class='btn btn-primary btn-block py-2'>Search</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
+    </form>
 {% endblock %}
+
 
 {% block script %}
     <script>
-        function set_search_type(id1, id2) {
-            const element = document.getElementById(id1 + '_btn');
-            if (element.disabled === false) {
-                element.disabled = true;
-                document.getElementById(id2 + '_btn').disabled = false;
-
-                document.getElementById(id1 + '_search').hidden = false;
-                document.getElementById(id2 + '_search').hidden = true;
-            }
-        }
+        $('#id_diseases__name__icontains').select2({
+            selectionCssClass: "form-select", placeholder: "SO Disease",
+            allowClear: false, tags: true, width: 'style',
+            matcher: modelMatcher
+        });
+        $('#id_diseases__name__icontains2').select2({
+            selectionCssClass: "form-select", placeholder: "GP Disease",
+            allowClear: false, tags: true, width: 'style',
+            matcher: modelMatcher
+        });
+        $('span.select2').addClass('col p-0');
+        $('.select2-selection').removeClass('select2-selection--single');
     </script>
 {% endblock %}

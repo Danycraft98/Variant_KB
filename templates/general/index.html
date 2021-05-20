@@ -1,0 +1,168 @@
+{% extends 'base_site.html' %}
+{% load render_table from django_tables2 %}
+{% load custom_tags static widget_tweaks %}
+
+
+{% block style %}
+    <link rel='stylesheet' href='//cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css'>
+{% endblock %}
+
+{% block content %}
+    <div class='row'>
+        <div class='col-8 container-fluid'>
+            <div class='mb-3 card card-shadow-success border-success card-btm-border'>
+                <div class='tabs-lg-alternate card-header'>
+                    <div class='nav nav-justified' onclick='change_color(this)'>
+                        {% for model in models %}
+                            <a id='id_tab-{{ forloop.counter }}' href='#tab-{{ forloop.counter }}' data-bs-toggle='tab' class='nav-item nav-link minimal-tab-btn-1 {% if not forloop.counter0 %}active{% endif %}'>
+                                <div class='widget-number'>{{ model.class_type }}</div>
+                                <div class='tab-subheading'>
+                                    <span class='pr-2 opactiy-6'>
+                                        Total:
+                                    </span>
+                                    {{ model.count }}
+                                </div>
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class='tab-content'>
+                    {% for mini_table in mini_tables %}
+                        <div class='tab-pane fade {% if not forloop.counter0 %}show active{% endif %}' id='tab-{{ forloop.counter }}'>
+                            <div class='card-body'>
+                                {% render_table mini_table %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!--div class='row'>
+        <div class='col-4'>
+            <div class='card card-shadow-success border-success card-btm-border'>
+                <div class='card-header border-success d-flex flex-row align-items-center justify-content-between'>
+                    <h5 class='my-2'>Genes</h5>
+                    <div class='align-items-right my-2'>
+                        Total: {{ counts.0 }}
+                    </div>
+                </div>
+
+                <div class='card-body'>
+                    {% render_table mini_tables.0 %}
+                </div>
+            </div>
+        </div>
+
+        <div class='col-4'>
+            <div class='card card-shadow-primary border-primary card-btm-border'>
+                <div class='card-header border-primary d-flex flex-row align-items-center justify-content-between'>
+                    <h5 class='my-2'>Variants</h5>
+                    <div class='align-items-right my-2'>
+                        Total: {{ counts.1 }}
+                    </div>
+                </div>
+
+                <div class='card-body'>
+                    {% render_table mini_tables.1 %}
+                </div>
+            </div>
+        </div>
+
+        <div class='col-4'>
+            <div class='card card-shadow-warning border-warning card-btm-border'>
+                <div class='card-header border-warning d-flex flex-row align-items-center justify-content-between'>
+                    <h5 class='my-2'>Diseases</h5>
+                    <div class='align-items-right my-2'>
+                        Total: {{ counts.2 }}
+                    </div>
+                </div>
+
+                <div class='card-body'>
+                    {% render_table mini_tables.2 %}
+                </div>
+            </div>
+        </div>
+    </div-->
+        <div class='col-4 container-fluid'>
+            <div class='mb-3 card shadow-none border-secondary card-btm-border'>
+                <div class='card-header'>Search</div>
+                <div class='card-body'>
+                    <form method='post' action="{% url 'search' %}">
+                        {% csrf_token %}
+                        <dl class='form-row mb-2'>
+                            <dd class='col-12'>{{ form.gene__name__icontains }}</dd>
+                            <dd class='col-6'>{{ form.protein__icontains }}</dd>
+                            <dd class='col-6'>{{ form.cdna__icontains }}</dd>
+                            <dd class='col-6'>{% render_field form.diseases__name__icontains style='width:100%;' %}</dd>
+                            <dd class='col-6'>{% render_field form.diseases__name__icontains2 style='width:100%;' %}</dd>
+                        </dl>
+
+                        <div class='form-group row mt-4'>
+                            <div class='offset-md-3 col-6'>
+                                <button type='submit' class='btn btn-primary col-12 py-2'>Search</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class='mb-3 card shadow-none border-secondary card-btm-border'>
+                <div class='card-header'>Activities</div>
+                <div class='card-body'>
+                    {% render_table history_table %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block script %}
+    <script src='//cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js'></script>
+    <script>
+        function change_color() {
+            const div = $('.card').first(), tab_id = $('.nav-item.active').attr('id');
+            if (tab_id === 'id_tab-1') {
+                div.removeClass('card-shadow-primary border-primary card-shadow-warning border-warning');
+                div.addClass('card-shadow-success border-success');
+            } else if (tab_id === 'id_tab-2') {
+                div.removeClass('card-shadow-success border-success card-shadow-warning border-warning');
+                div.addClass('card-shadow-primary border-primary');
+            } else {
+                div.removeClass('card-shadow-success border-success card-shadow-primary border-primary');
+                div.addClass('card-shadow-warning border-warning');
+            }
+        }
+
+        $(document).ready(function () {
+            add_options("{% static 'data/gp_dx.json' %}", '#dx_list');
+            add_options("{% static 'data/so_dx.json' %}", '#dx_list');
+
+            $('.dataTable').DataTable(
+                {% if table.class_type == 'Variant' %}
+                    {'scrollX': true, 'sScrollX': '100%', 'sScrollXInner': '110%'}
+                {% endif %}
+            );
+        });
+
+        $('#id_diseases__name__icontains').select2({
+            selectionCssClass: "form-select", placeholder: "SO Disease",
+            allowClear: false, tags: true, width: 'style',
+            matcher: modelMatcher
+        });
+        $('#id_diseases__name__icontains2').select2({
+            selectionCssClass: "form-select", placeholder: "GP Disease",
+            allowClear: false, tags: true, width: 'style', matcher: modelMatcher
+        });
+
+        $('span.select2').addClass('col p-0');
+        $('.select2-selection').removeClass('select2-selection--single')
+
+        $('#selectAll').click(function (e) {
+            const table = $(e.target).closest('table');
+            $('td input:checkbox', table).prop('checked', this.checked);
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% load custom_tags %}
+
+
+<div {% if sub_form|get_prefix == 'evid' and 'path_item' in sub_form.prefix %}class='collapse'{% endif %} id='{{ sub_form.prefix }}-outer-div' {% if form|is_empty:forloop.first %}hidden{% endif %}>
+    {% if sub_form.forms %}
+
+        {% for form in sub_form.forms %}
+            {% include 'partials/_formset.html' %}
+        {% endfor %}
+
+    {% elif sub_form %}
+
+        {% with form=sub_form %}
+
+            {% include 'partials/_formset.html' %}
+
+        {% endwith %}
+
+    {% endif %}
+</div>

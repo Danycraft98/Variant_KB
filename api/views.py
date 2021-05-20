@@ -4,31 +4,30 @@ from .serializers import *
 from .models import Gene, Variant
 
 
-class GeneViewSet(viewsets.ModelViewSet):
+class BaseViewSet(viewsets.ModelViewSet):
+    base_class = None
+
+    def get_queryset(self):
+        queryset = self.base_class.objects.all()
+        name = self.kwargs.get('name', None)
+        if name and self.base_class:
+            queryset = queryset.filter(name=name) if self.base_class != Variant else queryset.filter(protein=name)
+        return queryset
+
+
+class GeneViewSet(BaseViewSet):
+    base_class = Gene
     queryset = Gene.objects.all().order_by('name')
     serializer_class = GeneSerializer
 
 
-class VariantViewSet(viewsets.ModelViewSet):
+class VariantViewSet(BaseViewSet):
+    base_class = Variant
     queryset = Variant.objects.all()
     serializer_class = VariantSerializer
 
 
-class DiseaseViewSet(viewsets.ModelViewSet):
+class DiseaseViewSet(BaseViewSet):
+    base_class = Disease
     queryset = Disease.objects.all()
     serializer_class = DiseaseSerializer
-
-
-class DiseaseList(viewsets.ViewSetMixin, generics.ListAPIView):
-    serializer_class = DiseaseSerializer
-
-    def get_queryset(self):
-        queryset = Disease.objects.all()
-        name = self.kwargs.get('name', None)
-        if name:
-            queryset = queryset.filter(name=name)
-        return queryset
-
-    @classmethod
-    def get_extra_actions(cls):
-        return []

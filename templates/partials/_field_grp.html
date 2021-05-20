@@ -1,0 +1,25 @@
+{% load custom_tags %}
+
+
+{% with last=forloop.last %}
+    {% for item, val in items|get_values %}
+        {% if  items.branch %}
+
+            <dt class='col-4'>{{ item|capfirst }}</dt>
+            <dd class='col-8'>{{ val }}</dd>
+
+        {% elif items.item and item.0 == 's' %}
+
+            {% with is_last=item|math:'statement' %}
+                <dt class='col-4 {{ is_last|get_div_or_link:last }}'>{{ item|capfirst }}</dt>
+                <dd class='col-8 {{ is_last|get_div_or_link:last }}'>{{ val }}</dd>
+            {% endwith %}
+
+        {% elif not items.item %}
+
+            <dt class='col-4 {{ forloop.last|get_div_or_link:last }}'>{{ item|capfirst }}</dt>
+            <dd class='col-8 {{ forloop.last|get_div_or_link:last }}'>{{ val }}</dd>
+
+        {% endif %}
+    {% endfor %}
+{% endwith %}
