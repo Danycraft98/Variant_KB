@@ -3,8 +3,8 @@ import os
 import sys
 
 if __name__ == "__main__":
-    os.system('python manage.py makemigrations')
-    os.system('python manage.py migrate')
+    # os.system('python manage.py makemigrations')
+    # os.system('python manage.py migrate')
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "variant-kb.settings")
     try:
         from django.core.management import execute_from_command_line
