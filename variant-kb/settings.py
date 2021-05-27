@@ -76,7 +76,7 @@ WSGI_APPLICATION = 'variant-kb.wsgi.application'
 
 # Database
 DATABASES = {
-    'default': dj_database_url.config(default=os.getenv('DATABASE_URL', "sqlite:///temp.db")), #'mysql://root:password@localhost:3306/variant_db')),
+    'default': dj_database_url.config(default=os.getenv('DATABASE_URL', 'mysql://root:password@localhost:3306/variant_db')),
 }
 DEFAULT_AUTO_FIELD='django.db.models.AutoField'
 

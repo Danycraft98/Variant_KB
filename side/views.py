@@ -6,7 +6,7 @@ from django.http import HttpResponse, Http404
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.utils import timezone
-# from weasyprint import HTML, CSS
+from weasyprint import HTML, CSS
 
 from api.models import *
 from api.tables import VariantTable
@@ -14,6 +14,7 @@ from .forms import *
 from .functions import *
 from .tables import *
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROTEIN_DICT = {
     'A': 'Ala', 'R': 'Arg', 'N': 'Asn', 'D': 'Asp', 'C': 'Cys', 'Q': 'Gln', 'E': 'Glu',
     'G': 'Gly', 'H': 'His', 'I': 'Ile', 'L': 'Leu', 'K': 'Lys', 'M': 'Met', 'F': 'Phe',
@@ -59,7 +60,7 @@ def upload(request):
     if upload_file:
         if 'xlsx' in upload_file.name:
             switch = True
-            filename = os.path.join(os.getenv('BASE_DIR'), 'static', upload_file.name.replace('xlsx', 'csv').replace('xls', 'csv'))
+            filename = os.path.join(BASE_DIR, 'static', upload_file.name.replace('xlsx', 'csv').replace('xls', 'csv'))
             read_file(upload_file, dtype=str).to_csv(filename, index=False)
             upload_file = open(filename)
         line, found = True, False
@@ -154,10 +155,10 @@ def exported(request, gene_name, protein):
     except Variant.DoesNotExist:
         raise Http404('Variant does not exist')
     diseases = Disease.objects.filter(name__in=request.POST.getlist('disease'), variant=item)
-    """html = HTML(string=render_to_string('general/export.html', {'item': item, 'diseases': diseases, 'user': request.user}))
+    html = HTML(string=render_to_string('general/export.html', {'item': item, 'diseases': diseases, 'user': request.user}))
     html.write_pdf(target='/tmp/report.pdf', stylesheets=[
         CSS('static/css/bootstrap.min.css'), CSS('static/css/main.css')
-    ])"""
+    ])
 
     fs = FileSystemStorage('/tmp')
     with fs.open('report.pdf') as pdf:
