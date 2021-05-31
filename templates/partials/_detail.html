@@ -45,38 +45,21 @@
                 {% for key, val in item|get_pane:pane_name %}
 
                     {% if val and val != 'na' %}
-                        {% if key == 'pred_pmid' %}
 
-                            {% for pred in item.pmid_list.all %}
-                                {% if pred.value and pred.value != 'na' and pane_name|is_empty:pred.pmids %}
-                                    <dt class='col-3 text-right'>{{ pred.name|capfirst }}</dt>
-                                    <dd class='col-custom p-0'></dd>
-                                    <dd class='col-6 {% if not pred.pmids %}pred{% endif %}' id='{{ pred.name }}'>{{ pred.value }}</dd>
-                                    {% if pred.pmids %}
-                                        <dt class='col-3 text-right'>{{ pred.name|capfirst }}_pmids</dt>
-                                        <dd class='col-custom p-0'></dd>
-                                        <dd class='col-6'>{{ pred.pmids|get_div_or_link:';' | safe }}</dd>
-                                    {% endif %}
-                                {% endif %}
-                            {% endfor %}
+                        <dt class='col-3 text-right'>{{ key|capfirst }}</dt>
+                        <dd class='col-custom p-0'></dd>
+                        <dd class='col-6'>
+                            {% if 'pmid' in key|lower %}
+                                {% with links=val|get_div_or_link:';' %}
+                                    {{ links | safe }}
+                                {% endwith %}
+                            {% elif key == 'link' %}
+                                <a target='_blank' href='{{ val }}'>Link to {{ key }}</a>
+                            {% else %}
+                                {{ val }}
+                            {% endif %}
+                        </dd>
 
-                        {% else %}
-
-                            <dt class='col-3 text-right'>{{ key|capfirst }}</dt>
-                            <dd class='col-custom p-0'></dd>
-                            <dd class='col-6'>
-                                {% if 'pmid' in key|lower %}
-                                    {% with links=val|get_div_or_link:';' %}
-                                        {{ links | safe }}
-                                    {% endwith %}
-                                {% elif key == 'link' %}
-                                    <a target='_blank' href='{{ val }}'>Link to {{ key }}</a>
-                                {% else %}
-                                    {{ val }}
-                                {% endif %}
-                            </dd>
-
-                        {% endif %}
                     {% endif %}
 
                 {% endfor %}

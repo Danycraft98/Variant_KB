@@ -235,8 +235,7 @@ RETURN_TYPE = {
     'dx': ['name', 'report', 'func_sig'], 'score': ['for_score', 'against_score', 'content'],
     'func': ['item', 'source_id', 'source_type', 'statement'],
     'path_item': ['item', 'source_id', 'source_type', 'statement'],
-    'act': ['source_id', 'source_type', 'statement', 'evid_sig', 'evid_dir', 'level', 'clin_sig', 'drug_class',
-            'evid_rating'],
+    'act': ['source_id', 'source_type', 'statement', 'evid_sig', 'evid_dir', 'level', 'clin_sig', 'drug_class', 'evid_rating'],
     'evid': ['source_id', 'source_type', 'statement'],
     'report': ['report_name', 'content'],
 }

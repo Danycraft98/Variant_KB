@@ -8,8 +8,8 @@ from accounts.models import User
 from .constants import *
 
 __all__ = [
-    'Gene', 'Variant', 'Disease', 'History', 'PredPMID',
-    'CancerHotspot', 'Score', 'Evidence', 'Report', 'ITEMS'
+    'Gene', 'Variant', 'Disease', 'History', 'PredPMID', 'CancerHotspot',
+    'Score', 'Evidence', 'Report', 'ITEMS', 'VariantField'
 ]
 
 
@@ -20,7 +20,7 @@ class BaseModel(models.Model):
 
     def __str__(self):
         """ The string method """
-        return ''
+        return self.class_type()
 
     def count(self):
         """ The object count method """
@@ -58,35 +58,20 @@ class Gene(BaseModel):
         return self.name
 
 
-class Variant(BaseModel):  # TODO: possibly remove genome_build, consequence
+class Variant(BaseModel):
     """ A class used to represent a Variant object """
-    genome_build = models.CharField(max_length=10, default='')
+    gene = models.ForeignKey(Gene, related_name='variants', on_delete=models.CASCADE)
+    cdna = models.CharField(verbose_name='c.', max_length=10, default='')
+    protein = models.CharField(verbose_name='p.', max_length=20)
+
     chr = models.CharField(verbose_name='Chromosome', max_length=6, default='')
+    transcript = models.CharField(max_length=20)
     start = models.CharField(max_length=10, default='')
     end = models.CharField(max_length=10, default='')
     ref = models.CharField(max_length=100, default='')
     alt = models.CharField(max_length=100, default='')
-    transcript = models.CharField(max_length=20)
-    cdna = models.CharField(verbose_name='c.', max_length=10, default='')
-    protein = models.CharField(verbose_name='p.', max_length=20)
-    consequence = models.CharField(max_length=10, default='')
-    exonic_function = models.CharField(max_length=20, default='')
     content = models.TextField(verbose_name='Curation Notes', blank=True)
     germline_content = models.TextField(blank=True)
-
-    af = models.CharField(verbose_name='AF', max_length=20, default='')
-    af_popmax = models.CharField(verbose_name='AF_popmax', max_length=20, default='')
-    cosmic70 = models.CharField(max_length=500, default='')
-    clinvar = models.CharField(verbose_name='CLINVAR', max_length=20, default='')
-    insilicodamaging = models.CharField(verbose_name='InSilicoDamaging', max_length=100, default='')
-    insilicobenign = models.CharField(verbose_name='InSilicoBenign', max_length=100, default='')
-    tcga = models.CharField(verbose_name='TCGA#occurances', max_length=20, default='')
-    pmkb = models.CharField(verbose_name='Live PMKB Classification', max_length=10, default='')
-    pmkb_citations = models.CharField(verbose_name='PMKB citations', max_length=500, default='')
-    civic = models.CharField(verbose_name='CIViC', max_length=50, default='')
-    google = models.CharField(max_length=100, default='')
-    alamut = models.CharField(max_length=70, default='')
-    gene = models.ForeignKey(Gene, related_name='variants', on_delete=models.CASCADE)
 
     class Meta:
         ordering = ['protein']
@@ -96,24 +81,34 @@ class Variant(BaseModel):  # TODO: possibly remove genome_build, consequence
         return self.protein
 
     def get_pane(self, item):
-        pane_item = {
+        pane_item, rtn_dict = {
             'main': ['transcript', 'chr', 'start', 'end', 'ref', 'alt'],
             'detail': [
-                'exonic_function', 'af', 'af_popmax', 'cosmic70', 'clinvar', 'insilicodamaging',
-                'insilicobenign', 'pmid_list', 'tcga'
+                'exonicfunc.uhnclggene', 'af', 'af_popmax', 'cosmic70', 'clinvar',
+                'insilicodamaging', 'insilicobenign', 'tcga#occurances'
             ],
-            'score': ['pmid_list'],
+            'score': ['oncokb', 'oncokb_pmids', 'watson', 'watson_pmids', 'qci', 'qci_pmids', 'jaxckb'],
             'link': ['google', 'civic', 'alamut'],
-        }.get(item, [])
+        }.get(item, []), {}
         verbose_dict = {field.name: field.verbose_name for field in self._meta.fields}
-        return {verbose_dict.get(field, 'pred_pmid'): self.serializable_value(field) if field != 'pmid_list' else field for field in pane_item}.items()
+        for field_name in pane_item:
+            var_field = VariantField.get_value(self.id, field_name)
+            rtn_dict[verbose_dict.get(field_name, field_name)] = self.serializable_value(field_name) if item == 'main' else var_field if field_name != 'pmid_list' else ''
+        return rtn_dict.items()
 
 
-class PredPMID(BaseModel):
-    name = models.CharField(max_length=40, default='')
-    value = models.CharField(max_length=40, default='')
-    pmids = models.CharField(max_length=50, default='')
-    variant = models.ForeignKey(Variant, related_name='pmid_list', on_delete=models.CASCADE, null=True, blank=True)
+class VariantField(BaseModel):
+    name = models.CharField(verbose_name='AF', max_length=20, default='')
+    value = models.CharField(verbose_name='AF', max_length=500, default='')
+    variant = models.ForeignKey(Variant, related_name='fields', on_delete=models.CASCADE, null=True, blank=True)
+
+    @staticmethod
+    def get_value(var_id, field_name):
+        try:
+            value = VariantField.objects.get(variant=var_id, name=field_name).value
+        except VariantField.DoesNotExist:
+            value = 'N/A'
+        return value
 
 
 class CancerHotspot(BaseModel):
@@ -127,12 +122,20 @@ class CancerHotspot(BaseModel):
         return self.hotspot
 
 
+# Delete
+class PredPMID(BaseModel):
+    name = models.CharField(max_length=40, default='')
+    value = models.CharField(max_length=40, default='')
+    pmids = models.CharField(max_length=50, default='')
+    variant = models.ForeignKey(Variant, related_name='pmid_list', on_delete=models.CASCADE, null=True, blank=True)
+
+
 class Disease(BaseModel):
     """ A class used to represent a Disease object """
     name = models.CharField(max_length=50)
     branch = models.CharField(choices=BRANCH_CHOICES, max_length=2, default='no')
     func_sig = models.CharField(verbose_name='Functional Significance', choices=FUNC_SIG_CHOICES, max_length=20, null=True, blank=True)
-    others = models.CharField(choices=TIER_CHOICES, max_length=20, null=True, blank=True)
+    others = models.CharField(verbose_name='Tier', choices=TIER_CHOICES, max_length=20, null=True, blank=True)
     report = models.TextField(verbose_name='Germline Report', max_length=255, blank=True, default='')
     variant = models.ForeignKey(Variant, related_name='diseases', on_delete=models.CASCADE, null=True, blank=True)
 

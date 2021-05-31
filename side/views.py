@@ -1,12 +1,11 @@
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import FieldDoesNotExist
 from django.core.files.storage import FileSystemStorage
 from django.core.mail import send_mail
 from django.http import HttpResponse, Http404
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.utils import timezone
-from weasyprint import HTML, CSS
+# from weasyprint import HTML, CSS
 
 from api.models import *
 from api.tables import VariantTable
@@ -58,6 +57,7 @@ def account_request(request):
 def upload(request):
     switch, upload_file, submit_list = False, request.FILES.get('file', None), request.POST.getlist('submit', None)
     if upload_file:
+        # Upload Stage
         if 'xlsx' in upload_file.name:
             switch = True
             filename = os.path.join(BASE_DIR, 'static', upload_file.name.replace('xlsx', 'csv').replace('xls', 'csv'))
@@ -92,35 +92,22 @@ def upload(request):
         })
 
     elif submit_list:
+        # Submit Upload Stage
         pmids = ['oncokb', 'watson', 'qci', 'jaxckb']
         headers, values = request.POST.get('headers', None).split('^'), request.POST.getlist('row_val', None)
         for submit in submit_list:
-            values = submit.split('^')
+            values, variant_fields = submit.split('^'), ['cdna', 'protein', 'chr', 'transcript', 'start', 'end', 'alt', 'ref']
             gene, protein, row = values.pop(0), values[0], dict(zip(headers[1:], values))
-            [row.pop(key, '') for key in ['igv', 'ucsc genome browser', 'hgmd']]
+            variant_dict = {key: row.get(key, None) for key in variant_fields}
             gene_obj, gene_exists = Gene.objects.update_or_create(name=gene)
-            row.update({
-                'exonic_function': row.pop('exonicfunc.uhnclggene', 'na'),
-                'tcga': row.pop('tcga#occurances', 'na')
-            })
             raw_cancerhotspot = row.pop('cancerhotspots', 'na').split('|')
-            add_vals, pred_pmids, pop_list = [key for key in row if key in pmids or 'pred' in key], [], ['id']
-            for key in add_vals:
-                pred_pmid = PredPMID.objects.create(name=key, value=row.pop(key), pmids=row.pop(key + '_pmids')) if key in pmids \
-                    else PredPMID.objects.create(name=key, value=row.pop(key))
-                pred_pmids.append(pred_pmid)
+            new_variant, _ = Variant.objects.get_or_create(gene=gene_obj, **variant_dict)
+            for key in headers:
+                if key not in variant_fields:
+                    field_obj, _ = VariantField.objects.get_or_create(variant=new_variant, name=key)
+                    VariantField.objects.filter(id=field_obj.id).update(value=row.get(key, ''))
 
-            for name in row:
-                try:
-                    Variant._meta.get_field(name)
-                except FieldDoesNotExist:
-                    pop_list.append(name)
-            [row.pop(name, None) for name in pop_list]
-            new_variant, _ = Variant.objects.get_or_create(gene=gene_obj, **row)
             History.objects.create(content='Update' if new_variant.history.count() else 'Upload', timestamp=timezone.now(), user=request.user, variant=new_variant)
-            for pred_pmid in pred_pmids:
-                pred_pmid.variant = new_variant
-                pred_pmid.save()
             for hotspot in raw_cancerhotspot:
                 if hotspot == 'na':
                     break
@@ -150,7 +137,7 @@ def export(request, gene_name, protein):
 
 
 def exported(request, gene_name, protein):
-    try:
+    """try:
         item = Variant.objects.get(gene__name=gene_name, protein=protein)
     except Variant.DoesNotExist:
         raise Http404('Variant does not exist')
@@ -164,4 +151,5 @@ def exported(request, gene_name, protein):
     with fs.open('report.pdf') as pdf:
         response = HttpResponse(pdf, content_type='application/pdf')
         response['Content-Disposition'] = "attachment; filename=report.pdf"
-        return response
+        return response"""
+    return None

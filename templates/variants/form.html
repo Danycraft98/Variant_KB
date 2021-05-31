@@ -4,7 +4,6 @@
 
 {% block content %}
     <form id='save_form' action='' method='POST' onsubmit='return submitMsg()'>
-        <!-- FUNC ACT ID ERROR -->
         <div class='card my-5 shadow-none card-body p-0'>
             {% include 'partials/_detail.html' %}
 
@@ -40,8 +39,7 @@
                     {% endfor %}
                 </div>
 
-                <div class='nav nav-tabs col-4 d-flex justify-content-end p-0 form-inline mb-0' id='nav-tab'
-                     role='tablist'>
+                <div class='nav nav-tabs col-4 d-flex justify-content-end p-0 form-inline mb-0' id='nav-tab' role='tablist'>
                     <a class='nav-item nav-link py-auto bg-light' type='button' role='tab' onclick='history.back()'>Cancel</a>
                     <input id='anchor' class='nav-item nav-link py-auto bg-white' type='submit' value='Save' role='tab'>
                 </div>

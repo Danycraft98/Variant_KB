@@ -13,23 +13,28 @@
             <div class='card-header h6 mb-4' data-bs-toggle="collapse" data-bs-target="{{ form.prefix }}">Against Pathogenicity</div>
         {% endif %}
 
-    {% elif form|get_prefix == 'func' or form|get_prefix == 'act' %}
-        <!--hr/-->
     {% endif %}
 
     {# Card Body #}
-    <div id='{{ form.prefix }}-div' class='card-body container{% if forloop.first or form|get_prefix == 'dx' %} pb-0{% else %} py-0{% endif %}' {% if form|is_empty:forloop.first %}hidden{% endif %}>
+    <fieldset id='{{ form.prefix }}-div' class='card-body container{% if forloop.first or form|get_prefix == 'dx' %} pb-0{% else %} py-0{% endif %}' {% if form|is_empty:forloop.first %}hidden{% endif %} {% if 'score' in form.prefix %}disabled{% endif %}>
         <dl class='row mb-0'>
+            <!-- Hidden Fields -->
             {% for hidden_field in form.hidden_fields %}
                 {{ hidden_field }}
             {% endfor %}
 
-            {% if form|get_prefix == 'act' and forloop.first %}
-                <dt class='other col-4'>{{ super_form.others.label }}</dt>
+            {% if form|get_prefix == super_form|get_prefix %}
+                <!--TODO: The extra field that needs to be added NOT Tier-->
+                <dt class='other col-4'>{{ super_form.others.label }}:</dt>
+                <dd class='other col-4'>{{ super_form.others }}</dd>
+                <dd class='other col-4'></dd>
+            {% elif form|get_prefix == 'act' and forloop.first %}
+                <dt class='other col-4'>{{ super_form.others.label }}:</dt>
                 <dd class='other col-4'>{{ super_form.others }}</dd>
                 <dd class='other col-4'></dd>
             {% endif %}
 
+            <!-- All Visible Fields (With some exceptions) -->
             {% for field in form|get_fields %}
                 {% if form|get_prefix == 'path_item' and field.name == 'item' %}
 
@@ -39,6 +44,7 @@
                             {{ field|get_label:sub_index.0 }}
                         </label>
                     {% endif %}
+
                     {% render_field field hidden='' value=sub_index.0 %}
 
                 {% elif form.branch.value == 'gp' and field.name == 'func_sig' or field.name == 'report_name' %}
@@ -72,13 +78,11 @@
                         <dd class='offset-md-3 col-1 btn-group'>
                             {% if field.name == 'source_type' and form|get_prefix != 'func' or field.name == 'item' %}
 
-                                <button type='button' class='btn btn-primary'
-                                        onclick='add_item($(this){% if field.name == 'content' %}, true{% endif %})'>
+                                <button type='button' class='btn btn-primary' onclick='add_item($(this){% if field.name == 'content' %}, true{% endif %})'>
                                     <i class='fa fa-plus'></i>
                                 </button>
 
-                                <button type='button' class='btn btn-primary {% if not index or form|get_prefix == 'path_item' and not sub_index.1 %}disabled{% endif %}'
-                                        onclick='delete_item($(this){% if form|get_prefix == 'func' %}, true{% endif %})'>
+                                <button type='button' class='btn btn-primary {% if not index or form|get_prefix == 'path_item' and not sub_index.1 %}disabled{% endif %}' onclick='delete_item($(this){% if form|get_prefix == 'func' %}, true{% endif %})'>
                                     <i class='fa fa-trash-o'></i>
                                 </button>
 
@@ -93,7 +97,7 @@
                 {% endif %}
             {% endfor %}
             </dl>
-    </div>
+    </fieldset>
 
     {% for sub_form in nested_form %}
         {% include 'partials/_sub_form.html' %}

@@ -3,7 +3,6 @@ import re
 from django import template
 
 from api.constants import *
-from api.models import Evidence
 
 register = template.Library()
 
@@ -51,8 +50,9 @@ def get_label(field, index):
         return field
     match = re.search('(report|path_item)-\\d+-([^-]+)$', field.auto_id)
     index = index if not match or match.group(1) == 'report' else list(ITEMS)[min(index, 28)]
-    return REPORT_NAMES[min(index, 5)] if match and match.group(1) == 'report' else \
-        (field.label_tag() if not match or match.group(2) != 'item' else '{key}: {val}'.format(key=index, val=ITEMS[index][0]))
+    if match and (match.group(1) == 'report' or match.group(2) == 'item'):
+        return REPORT_NAMES[min(index, 5)] + ':' if match.group(1) == 'report' else '{key}: {val}'.format(key=index, val=ITEMS[index][0])
+    return 'Functional Class:' if 'Item:' in field.label_tag() else field.label_tag()
 
 
 @register.filter
