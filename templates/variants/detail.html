@@ -51,7 +51,8 @@
 
                         <div class='card-body container pb-0'>
                             <dl class='row'>
-                                <!--Germline Clinical Report-->
+                                <dt class='col-4'>Gene Curation Notes</dt>
+                                <dd class='col-8'>{{ dx.gene_curation_notes }}</dd>
                                 {% with items=dx %}
                                     {% include 'partials/_field_grp.html' %}
                                 {% endwith %}

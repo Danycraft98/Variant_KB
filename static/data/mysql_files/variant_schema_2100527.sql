@@ -474,7 +474,7 @@ DROP TABLE IF EXISTS `api_report`;
 CREATE TABLE `api_report`
 (
     `id`         int         NOT NULL AUTO_INCREMENT,
-    `name`       varchar(40) NOT NULL,
+    `report_    name`       varchar(40) NOT NULL,
     `content`    longtext,
     `disease_id` int DEFAULT NULL,
     `gene_id`    int DEFAULT NULL,

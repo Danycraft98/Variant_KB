@@ -105,6 +105,8 @@ def upload(request):
             for key in headers:
                 if key not in variant_fields:
                     field_obj, _ = VariantField.objects.get_or_create(variant=new_variant, name=key)
+                    if len(row.get(key, '')) > 500:
+                        continue
                     VariantField.objects.filter(id=field_obj.id).update(value=row.get(key, ''))
 
             History.objects.create(content='Update' if new_variant.history.count() else 'Upload', timestamp=timezone.now(), user=request.user, variant=new_variant)
@@ -137,6 +139,7 @@ def export(request, gene_name, protein):
 
 
 def exported(request, gene_name, protein):
+    pass
     """try:
         item = Variant.objects.get(gene__name=gene_name, protein=protein)
     except Variant.DoesNotExist:
@@ -152,4 +155,3 @@ def exported(request, gene_name, protein):
         response = HttpResponse(pdf, content_type='application/pdf')
         response['Content-Disposition'] = "attachment; filename=report.pdf"
         return response"""
-    return None

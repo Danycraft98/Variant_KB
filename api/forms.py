@@ -1,4 +1,5 @@
 from django import forms
+from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.forms import modelformset_factory, BaseModelFormSet, model_to_dict
 
@@ -61,7 +62,7 @@ class BaseCustomModelFormSet(BaseModelFormSet):
 
 
 class DiseaseForm(forms.ModelForm):
-    name = forms.ChoiceField(required=False, choices=GP_DX_CHOICES, widget=forms.Select(attrs={'placeholder': 'Disease Name'}))
+    name = forms.ChoiceField(choices=GP_DX_CHOICES, widget=forms.Select(attrs={'placeholder': 'Disease Name'}))
     reviewed = forms.ChoiceField(
         label='Reviewed Status', initial='n', choices=REVIEWED_CHOICES,
         widget=forms.RadioSelect(attrs={'class': 'form-check-inline'})

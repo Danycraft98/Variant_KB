@@ -98,8 +98,8 @@ class Variant(BaseModel):
 
 
 class VariantField(BaseModel):
-    name = models.CharField(verbose_name='AF', max_length=20, default='')
-    value = models.CharField(verbose_name='AF', max_length=500, default='')
+    name = models.CharField(verbose_name='field name', max_length=50, default='')
+    value = models.CharField(max_length=500, default='')
     variant = models.ForeignKey(Variant, related_name='fields', on_delete=models.CASCADE, null=True, blank=True)
 
     @staticmethod
@@ -146,6 +146,7 @@ class Disease(BaseModel):
     meta_review_user = models.ForeignKey(User, related_name='meta_reviewed_variants', on_delete=models.CASCADE, null=True, blank=True)
     approved_date = models.DateTimeField('approved date', null=True, blank=True)
     approve_user = models.ForeignKey(User, related_name='approved_variants', on_delete=models.CASCADE, null=True, blank=True)
+    gene_curation_notes = models.TextField(verbose_name='Gene Curation Notes', max_length=255, blank=True, default='')
     curation_notes = models.TextField(verbose_name='Curation Notes', max_length=255, blank=True, default='')
 
     def __str__(self):
@@ -155,19 +156,6 @@ class Disease(BaseModel):
     def count(self):
         """ The Disease count method """
         return self.__class__.objects.filter(~Q(name='')).count()
-
-    @staticmethod
-    def none():
-        diseases = {
-            'so': Disease.objects.filter(variant=None, branch='so'),
-            'gp': Disease.objects.filter(variant=None, branch='gp')
-        }
-        for branch, disease_list in diseases.items():
-            if 5 - disease_list.count() <= 0:
-                continue
-            for _ in range(5 - disease_list.count()):
-                Disease.objects.create(branch=branch, report='', reviewed='n', variant=None, others='')
-        return Disease.objects.filter(variant=None)
 
     def clean(self):
         super(Disease, self).clean()

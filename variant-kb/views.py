@@ -60,16 +60,10 @@ def variant(request, gene_name, protein):
             messages.warning(request, 'You are not authorized to edit variants.')
         return render(request, 'variants/detail.html', param)
 
-    diseases = []
-    for branch in ['so', 'gp']:
-        dx_id_list = [dx.id for i, dx in enumerate(item.diseases.filter(branch=branch).union(Disease.none().filter(branch=branch)).all()) if i < 5]
-        dx_list = Disease.objects.filter(id__in=dx_id_list)
-        diseases.append(dx_list)
-
     param.update({
         'forms': [
-            SODiseaseFormset(request.POST or None, request.FILES or None, prefix='so-dx', queryset=diseases[0]),
-            GPDiseaseFormset(request.POST or None, request.FILES or None, prefix='gp-dx', queryset=diseases[1])
+            SODiseaseFormset(request.POST or None, request.FILES or None, prefix='so-dx', queryset=item.diseases.filter(branch='so')),
+            GPDiseaseFormset(request.POST or None, request.FILES or None, prefix='gp-dx', queryset=item.diseases.filter(branch='gp'))
         ], 'item_list': ITEMS.items(), 'title': (
             'pe-7s-note', 'Edit - {item}'.format(item=item),
             'Gene: {gene}; Disease Count: {count}'.format(gene=item.gene, count=item.diseases.count())
@@ -78,8 +72,8 @@ def variant(request, gene_name, protein):
     if request.method == 'POST':
         final_save = False
         History.objects.create(content='Update' if item.history.count() else 'Upload', timestamp=timezone.now(), user=request.user, variant=item)
-        for formset in param['forms']:
-            new_dxs, is_saved = save_formset(formset, {'variant': item})
+        for formset in param.get('forms'):
+            new_dxs, is_saved = save_formset(formset, {'variant': item}, True)
             final_save = True if is_saved else final_save
             for dx in new_dxs:
                 if not dx:

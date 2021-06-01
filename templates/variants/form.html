@@ -33,7 +33,7 @@
                     {% for formset in forms %}
                         {% for form in formset.forms %}
                             <a class='nav-item nav-link py-auto' id='id_{{ form.prefix }}-tab' type='button' href='#{{ form.prefix }}-form' data-bs-toggle='tab' role='tab' {% if form.branch.value == 'no' or not form.instance.variant %}hidden{% endif %}>
-                                {{ form.branch.value | upper }}: {{ form.name.value }}
+                                {{ form.prefix| slice:2 | upper }}: {{ form.name.value }}
                             </a>
                         {% endfor %}
                     {% endfor %}
@@ -67,8 +67,7 @@
                         <div class='tab-pane fade' id='{{ form.prefix }}-form'>
                             <div class='card-header container-fluid row m-0'>
                                 <div id='id_{{ form.prefix }}-label' class='font-weight-bold h6 col-8 d-flex justify-content-start my-2'>
-                                    {% if form.name.value %}{{ form.name.value }} / {{ form.reviewed.value|get_review_val }} {% if form.instance.get_date %}[{{ form.instance.get_date|date:'N j, Y' }}]{% endif %}{% else %}
-                                        [Disease] / [Status]{% endif %}
+                                    {% if form.name.value %}{{ form.name.value }} / {{ form.reviewed.value|get_review_val }} {% if form.instance.get_date %}[{{ form.instance.get_date|date:'N j, Y' }}]{% endif %}{% else %}[Disease] / [Status]{% endif %}
                                 </div>
 
                                 <div class='col-4 d-flex justify-content-end form-check-inline mr-0'>
@@ -80,38 +79,36 @@
                                 </div>
                             </div>
 
-                            {% if form.branch.value != 'no' %}
-                                {% with super_form=form %}
-                                    {% include 'partials/_formset.html' %}
-                                {% endwith %}
+                            {% with super_form=form %}
+                                {% include 'partials/_formset.html' %}
+                            {% endwith %}
 
-                                <div id='d{{ form.name.id_for_label }}_label' class='card-header h6'>Review</div>
-                                <div id='{{ form.prefix }}-div' class='card-body container'>
-                                    <dl class='row my-2'>
-                                        <dt class='col-2'>{{ form.reviewed.label_tag }}</dt>
-                                        <dd class='form-check-inline col-9 text-right'>
-                                            {% for field in form.reviewed %}
-                                                {% if forloop.first %}
-                                                    <fieldset hidden>{{ field }}</fieldset>
-                                                {% elif forloop.counter == 2 and user.specialist and form.reviewed.value == 'n' or forloop.counter == 3 and user.counselor and form.reviewed.value == 'r' or forloop.counter == 4 and user.scientist and form.reviewed.value != 'n' and form.reviewed.value != 'a' %}
-                                                    <fieldset class='pr-5'>{{ field }}</fieldset>
-                                                {% else %}
-                                                    <fieldset class='pr-5' disabled>{{ field }}</fieldset>
-                                                {% endif %}
-                                            {% endfor %}
-                                            {#% render_field field placeholder=form.reviewed.name %#}
-                                        </dd>
-                                    </dl>
+                            <div id='d{{ form.name.id_for_label }}_label' class='card-header h6'>Review</div>
+                            <div id='{{ form.prefix }}-div' class='card-body container'>
+                                <dl class='row my-2'>
+                                    <dt class='col-2'>{{ form.reviewed.label_tag }}</dt>
+                                    <dd class='form-check-inline col-9 text-right'>
+                                        {% for field in form.reviewed %}
+                                            {% if forloop.first %}
+                                                <fieldset hidden>{{ field }}</fieldset>
+                                            {% elif forloop.counter == 2 and user.specialist and form.reviewed.value == 'n' or forloop.counter == 3 and user.counselor and form.reviewed.value == 'r' or forloop.counter == 4 and user.scientist and form.reviewed.value != 'n' and form.reviewed.value != 'a' %}
+                                                <fieldset class='pr-5'>{{ field }}</fieldset>
+                                            {% else %}
+                                                <fieldset class='pr-5' disabled>{{ field }}</fieldset>
+                                            {% endif %}
+                                        {% endfor %}
+                                        {#% render_field field placeholder=form.reviewed.name %#}
+                                    </dd>
+                                </dl>
 
-                                    <hr class='double-hr'/>
+                                <hr class='double-hr'/>
 
-                                    <dl class='row my-2'>
-                                        <dt class='col-2'>{{ form.curation_notes.label_tag }}</dt>
-                                        <dd class='col-5'>{% render_field form.curation_notes placeholder=form.curation_notes.name %}</dd>
-                                        <dd class='col-3'></dd>
-                                    </dl>
-                                </div>
-                            {% endif %}
+                                <dl class='row my-2'>
+                                    <dt class='col-2'>{{ form.curation_notes.label_tag }}</dt>
+                                    <dd class='col-5'>{% render_field form.curation_notes placeholder=form.curation_notes.name %}</dd>
+                                    <dd class='col-3'></dd>
+                                </dl>
+                            </div>
                         </div>
                     {% endfor %}
                 {% endfor %}
@@ -128,6 +125,8 @@
     <script>
         $(document).ready(function () {
             autosize(document.querySelectorAll('textarea'));
+
+            // Detail Tab height Set-up
             let min_height = 0, tabs = $('#detail-content .tab-pane');
             $.each(tabs, function () {
                 this.classList.add('active'); /* make all visible */
@@ -136,6 +135,7 @@
                 $(this).css('min-height', min_height);
             });
 
+            // Hotspot Graph
             {% if item.hotspots.count %}
                 const color = d3.scaleOrdinal(d3.schemeCategory10).domain(['*', 'A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y', 'sp']),
                     group = [{% for hotspot in item.hotspots.all %}'{{ hotspot.hotspot }}',{% endfor %}],
@@ -145,6 +145,7 @@
                 hotspot_graph(color, group, data);
             {% endif %}
 
+            // Pred Set-up
             let pred_type1 = {
                 'D': 'probably damaging', 'P': 'possibly damaging', 'B': 'benign',
                 'H': 'high', 'M': 'medium', 'L': 'low', 'N': 'neutral', 'na': 'na'
@@ -159,6 +160,7 @@
                 }
             })
 
+            // Label & Input Set-Up
             $(':input').removeAttr('required');
             $("input[id^='id_gp-dx-0-path_item'][id$='key']").removeAttr('checked');
             $('li label').addClass('mr-2')
@@ -169,8 +171,15 @@
             $.each($("label[id*='-selector']"), function (i, elem) {
                 let jq_elem = $(elem), match = /(.+?item-)(\d+)-item/g.exec(elem.id), index = parseInt(match[2]);
                 jq_elem.attr('data-bs-target', jq_elem.attr('data-bs-target') + `,#${match[1] + (index + 1).toString()}-item-div,#${match[1] + (index + 2).toString()}-item-div`)
+            });
+
+            // Gene Curation Notes Set-up
+            $.each($("[id*='gene_curation_notes']"), function (i, elem) {
+                elem = $(elem);
+                elem.text(elem.text() ? elem.text() : 'test {{ item.gene }}')
             })
 
+            // Functional Fieldset Set-Up
             let func_sig = $("[id*='func_sig']");
             func_sig.attr('onchange', "tierChange($(this), ['Benign', 'None'])").attr('onload', "tierChange($(this), ['Benign', 'None'])");
             tierChange(func_sig, ['Benign', 'None']);
@@ -185,6 +194,7 @@
                 return $(`[id*='${prefix}'][id$='div']`).not("[id*='outer']").attr('id');
             })
 
+            // Disease Name Input Set-Up
             $("[id^='id_gp-dx-'][id$='-name'],[id^='id_so-dx-'][id$='-name']")
                 .attr('oninput', 'setHeader(this); get_report(this, {{ item.gene.id }}, {{ item.id }})')
                 .select2({

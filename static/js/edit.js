@@ -54,6 +54,7 @@ function add_disease(main_elem) {
             .prev().find("[id*='" + branch + "'][id*='tab']:hidden").first();
     new bootstrap.Tab(document.querySelector('#' + tab.attr('id'))).show()
     tab.first().removeAttr('hidden').tab('show');
+    $(tab.attr('href')).find("[id*='branch']").val(branch);
     main_elem.val('no');
 }
 
@@ -134,7 +135,6 @@ function tierChange(elem, options) {
     result.attr('disabled', selected).val('Tier IV');
     pane_div.children("[id*='act']").find('dd,dt').not('.other')
         .attr('hidden', selected);
-    console.log(selected, elem.val())
     if (selected) pane_div.children("[id*='act']").find(":input:not([id*='type'],[type='hidden'])").val('');
 }
 
