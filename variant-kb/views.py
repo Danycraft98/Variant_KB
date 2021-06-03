@@ -74,6 +74,12 @@ def variant(request, gene_name, protein):
         History.objects.create(content='Update' if item.history.count() else 'Upload', timestamp=timezone.now(), user=request.user, variant=item)
         for formset in param.get('forms'):
             new_dxs, is_saved = save_formset(formset, {'variant': item}, True)
+            for form in formset.forms:
+                gene_curation_notes = form.cleaned_data.get('gene_curation_notes', None)
+                if gene_curation_notes:
+                    item.gene.gene_curation_notes = gene_curation_notes
+                    item.gene.save()
+                    break
             final_save = True if is_saved else final_save
             for dx in new_dxs:
                 if not dx:

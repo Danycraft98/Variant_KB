@@ -123,6 +123,12 @@
     <script src="{% static 'js/autosize.min.js' %}"></script>
     <script src="{% static 'js/detail.js' %}"></script>
     <script>
+        function update_notes(text) {
+            $.each($("[id*='gene_curation_notes']"), function (i, sub_elem) {
+                $(sub_elem).val(text.value);
+            });
+        }
+
         $(document).ready(function () {
             autosize(document.querySelectorAll('textarea'));
 
@@ -176,8 +182,9 @@
             // Gene Curation Notes Set-up
             $.each($("[id*='gene_curation_notes']"), function (i, elem) {
                 elem = $(elem);
-                elem.text(elem.text() ? elem.text() : 'test {{ item.gene }}')
-            })
+                elem.text(elem.text() ? elem.text() : '{{ item.gene.gene_curation_notes }}');
+                elem.attr('oninput', "update_notes(this)")
+            });
 
             // Functional Fieldset Set-Up
             let func_sig = $("[id*='func_sig']");

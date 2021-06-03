@@ -49,6 +49,7 @@ class Gene(BaseModel):
     pub_date = models.DateTimeField('date published', auto_now_add=True)
     content = models.TextField(null=True, blank=True)
     germline_content = models.TextField(null=True, blank=True)
+    gene_curation_notes = models.TextField(verbose_name='Gene Curation Notes', max_length=255, blank=True, default='')
 
     class Meta:
         ordering = ['name']
@@ -146,7 +147,6 @@ class Disease(BaseModel):
     meta_review_user = models.ForeignKey(User, related_name='meta_reviewed_variants', on_delete=models.CASCADE, null=True, blank=True)
     approved_date = models.DateTimeField('approved date', null=True, blank=True)
     approve_user = models.ForeignKey(User, related_name='approved_variants', on_delete=models.CASCADE, null=True, blank=True)
-    gene_curation_notes = models.TextField(verbose_name='Gene Curation Notes', max_length=255, blank=True, default='')
     curation_notes = models.TextField(verbose_name='Curation Notes', max_length=255, blank=True, default='')
 
     def __str__(self):
