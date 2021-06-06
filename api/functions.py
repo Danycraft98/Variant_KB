@@ -26,7 +26,7 @@ def save_form(form, other_fields=None, is_super_form=False):
         if new_item.class_type() == 'Item':
             sub_fields.update(other_fields)
         elif new_item.class_type() == 'Evidence' and new_item.statement:
-            History.objects.create(content=new_item.statement, object=new_item, variant=new_item.disease.variant)
+            History.objects.update_or_create(content=new_item.statement, object=new_item, variant=new_item.disease.variant)
 
         if hasattr(form, 'nested'):  # and not formset._should_delete_form(form):
             if type(form.nested) == list:

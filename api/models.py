@@ -215,7 +215,10 @@ class Evidence(BaseModel):
 
     def __str__(self):
         """ The string method """
-        return str(self.item) if self.item else self.statement
+        print(ITEMS.keys())
+        if self.item:
+            return list(ITEMS.keys())[int(self.item)] if self.item.isnumeric() else self.item
+        return 'Actionability'
 
 
 class Report(BaseModel):

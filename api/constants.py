@@ -143,7 +143,8 @@ ITEMS = {  # 'PVS1 - SA': ['Stand Alone - whole gene deletion', 10],
     'BP2': ['in trans with pathogenic in AD or cis with pathogenic AD/AR', 1],
     'BP3': ['in-frame del/ins in repetitive region w/o known function (rarely applied)', 1],
     'BP4': ['in silico prediction', 1], 'BP5': ['in case with alternate basis for disease', 1],
-    'BP6': ['reputable source', 1], 'BP7': ['synonymous variant (not splice)', 1]}
+    'BP6': ['reputable source', 1], 'BP7': ['synonymous variant (not splice)', 1]
+}
 
 FUNC_SIG_CHOICES = [
     (None, 'Select'),

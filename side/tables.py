@@ -2,7 +2,7 @@ import django_tables2 as tables
 
 from api.models import *
 
-__all__ = ['DiseaseTable', 'HistoryTable']
+__all__ = ['DiseaseTable']
 
 
 class DiseaseTable(tables.Table):
@@ -23,13 +23,3 @@ class DiseaseTable(tables.Table):
     @staticmethod
     def class_type():
         return 'Disease'
-
-
-class HistoryTable(tables.Table):
-    class Meta:
-        model = History
-        orderable = False
-        order_by = '-timestamp'
-        sequence = ('timestamp', 'object', 'content', 'user')
-        exclude = ('id', 'variant')
-        attrs = {'class': 'nowrap table table-striped table-hover'}

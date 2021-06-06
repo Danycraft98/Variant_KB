@@ -8,7 +8,7 @@ from django.utils import timezone
 # from weasyprint import HTML, CSS
 
 from api.models import *
-from api.tables import VariantTable
+from api.tables import VariantTable, HistoryTable
 from .forms import *
 from .functions import *
 from .tables import *

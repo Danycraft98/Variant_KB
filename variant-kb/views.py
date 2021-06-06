@@ -71,7 +71,6 @@ def variant(request, gene_name, protein):
     })
     if request.method == 'POST':
         final_save = False
-        History.objects.create(content='Update' if item.history.count() else 'Upload', timestamp=timezone.now(), user=request.user, variant=item)
         for formset in param.get('forms'):
             new_dxs, is_saved = save_formset(formset, {'variant': item}, True)
             for form in formset.forms:
