@@ -60,7 +60,7 @@ function add_disease(main_elem) {
 
 
 function add_item(elem, is_func = false) {
-    let par_elem = elem.parents("dl[class*='row'], div[id*='-div']:not([id*='outer'])"), container = elem.parents("div[id$='-form']"),
+    let par_elem = elem.parents("dl[class*='row'], fieldset[id*='-div']:not([id*='outer'])"), container = elem.parents("div[id$='-form']"),
         pat = /(?:id_)?(.+?(?:item|func|act)-)(\d+)-div/g, match = pat.exec(par_elem.last().attr('id'));
     if (match) {
         let is_path = match[1].includes('item'),
@@ -69,8 +69,9 @@ function add_item(elem, is_func = false) {
 
         for (let i = index * 3; i < (index + 1) * 3; i++) {
             i = is_func ? i * 3 : i;
-            hidden = container.find(`div[id*='${match[1] + i.toString()}-div']${extra}`);
+            hidden = container.find(`[id*='${match[1] + i.toString()}-div']${extra}`);
             if (hidden.length && hidden.attr('hidden') || hidden.hasClass('hidden')) {
+                console.log('tete')
                 hidden.removeClass('hidden').removeAttr('hidden').addClass('show');
                 break;
             }

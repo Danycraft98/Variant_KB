@@ -16,7 +16,7 @@ def save_formset(formset, other_fields=None, is_super_form=False):
 
 def save_form(form, other_fields=None, is_super_form=False):
     other_fields, new_item = other_fields if other_fields else {}, None
-    check_evid = any(item in form.prefix for item in ['act', 'func', 'report']) and (form.cleaned_data.get('source_type', '') or form.cleaned_data.get('content', ''))
+    # check_evid = any(item in form.prefix for item in ['act', 'func', 'report']) and (form.cleaned_data.get('source_type', '') or form.cleaned_data.get('content', ''))
     if form.is_valid() and (is_super_form and form.cleaned_data.get('branch') != 'no' or not is_super_form) and form.cleaned_data:
         new_item = form.save()
         for attr, value in other_fields.items():
@@ -25,7 +25,7 @@ def save_form(form, other_fields=None, is_super_form=False):
         sub_fields = {new_item.class_type().lower(): new_item}
         if new_item.class_type() == 'Item':
             sub_fields.update(other_fields)
-        elif new_item.class_type() == 'Evidence':
+        elif new_item.class_type() == 'Evidence' and new_item.statement:
             History.objects.create(content=new_item.statement, object=new_item, variant=new_item.disease.variant)
 
         if hasattr(form, 'nested'):  # and not formset._should_delete_form(form):

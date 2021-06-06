@@ -32,6 +32,12 @@
                 <dt class='other col-4'>{{ super_form.others.label }}:</dt>
                 <dd class='other col-4'>{{ super_form.others }}</dd>
                 <dd class='other col-4'></dd>
+                <hr/>
+            {% elif form|get_prefix == 'func' and forloop.first %}
+                <dt class='other col-4'>{{ super_form.func_sig.label }}:</dt>
+                <dd class='other col-4'>{{ super_form.func_sig }}</dd>
+                <dd class='other col-4'></dd>
+                <hr/>
             {% endif %}
 
             <!-- All Visible Fields (With some exceptions) -->
@@ -47,7 +53,7 @@
 
                     {% render_field field hidden='' value=sub_index.0 %}
 
-                {% elif form.branch.value == 'gp' and field.name == 'func_sig' or field.name == 'report_name' %}
+                {% elif form.branch.value == 'so' and field.name == 'report' or field.name == 'report_name' %}
 
                     {% render_field field value=field|get_label:index hidden='' %}
 

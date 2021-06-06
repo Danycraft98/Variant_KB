@@ -232,7 +232,7 @@ REVIEWED_CHOICES = [
 CLASS_TO_PREFIX = {'Disease': 'dx', 'Score': 'score', 'Evidence': 'act', 'Report': 'report'}
 
 RETURN_TYPE = {
-    'dx': ['name', 'report', 'func_sig'], 'score': ['for_score', 'against_score', 'content'],
+    'dx': ['name', 'report'], 'score': ['for_score', 'against_score', 'content'],
     'func': ['item', 'source_id', 'source_type', 'statement'],
     'path_item': ['item', 'source_id', 'source_type', 'statement'],
     'act': ['source_id', 'source_type', 'statement', 'evid_sig', 'evid_dir', 'level', 'clin_sig', 'drug_class', 'evid_rating'],

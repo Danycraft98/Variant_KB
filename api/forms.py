@@ -62,7 +62,7 @@ class BaseCustomModelFormSet(BaseModelFormSet):
 
 
 class DiseaseForm(forms.ModelForm):
-    gene_curation_notes = forms.CharField(widget=forms.Textarea())
+    gene_curation_notes = forms.CharField(required=False, widget=forms.Textarea())
     name = forms.ChoiceField(choices=GP_DX_CHOICES, widget=forms.Select(attrs={'placeholder': 'Disease Name'}))
     reviewed = forms.ChoiceField(
         label='Reviewed Status', initial='n', choices=REVIEWED_CHOICES,

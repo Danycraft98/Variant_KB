@@ -121,5 +121,5 @@ class HistoryTable(tables.Table):
         model = History
         orderable = False
         order_by = '-timestamp'
-        fields = sequence = ('timestamp', 'object', 'content', 'user')
+        fields = sequence = ('timestamp', 'variant', 'object', 'content', 'user')
         attrs = {'class': 'nowrap table table-striped table-hover'}

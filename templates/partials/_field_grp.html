@@ -3,7 +3,9 @@
 
 {% with last=forloop.last %}
     {% for item, val in items|get_values %}
-        {% if  items.branch %}
+        {% if items.branch == 'so' and 'Report' in item %}
+
+        {% elif items.branch %}
 
             <dt class='col-4'>{{ item|capfirst }}</dt>
             <dd class='col-8'>{{ val }}</dd>

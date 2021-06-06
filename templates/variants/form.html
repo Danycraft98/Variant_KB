@@ -89,10 +89,10 @@
                                     <dt class='col-2'>{{ form.reviewed.label_tag }}</dt>
                                     <dd class='form-check-inline col-9 text-right'>
                                         {% for field in form.reviewed %}
-                                            {% if forloop.first %}
+                                            {% if forloop.first or forloop.counter == 3 and 'so' in form.prefix %}
                                                 <fieldset hidden>{{ field }}</fieldset>
                                             {% elif forloop.counter == 2 and user.specialist and form.reviewed.value == 'n' or forloop.counter == 3 and user.counselor and form.reviewed.value == 'r' or forloop.counter == 4 and user.scientist and form.reviewed.value != 'n' and form.reviewed.value != 'a' %}
-                                                <fieldset class='pr-5'>{{ field }}</fieldset>
+                                                <fieldset class='pr-5' onclick='enable_second(this)'>{{ field }}</fieldset>
                                             {% else %}
                                                 <fieldset class='pr-5' disabled>{{ field }}</fieldset>
                                             {% endif %}
@@ -123,6 +123,11 @@
     <script src="{% static 'js/autosize.min.js' %}"></script>
     <script src="{% static 'js/detail.js' %}"></script>
     <script>
+        function enable_second(element) {
+            if ($(element).text().includes('Reviewed'))
+                $($(element).parents('dd').children()[2]).removeAttr('disabled')
+        }
+
         function update_notes(text) {
             $.each($("[id*='gene_curation_notes']"), function (i, sub_elem) {
                 $(sub_elem).val(text.value);
