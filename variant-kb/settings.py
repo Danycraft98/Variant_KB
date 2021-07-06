@@ -113,6 +113,8 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Upload Settings
 UPLOADS_PATH = join(dirname(realpath(__file__)), 'static/uploads/')
+
+FILE_UPLOAD_MAX_MEMORY_SIZE = 5000000
 FILE_UPLOAD_TEMP_DIR = join(dirname(realpath(__file__)), 'static/tmp-uploads/')
 FILE_UPLOAD_HANDLERS = (
     'django.core.files.uploadhandler.MemoryFileUploadHandler',

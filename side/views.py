@@ -5,7 +5,7 @@ from django.http import HttpResponse, Http404
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.utils import timezone
-# from weasyprint import HTML, CSS
+from weasyprint import HTML, CSS
 
 from api.models import *
 from api.tables import VariantTable, HistoryTable
@@ -59,10 +59,12 @@ def upload(request):
     if upload_file:
         # Upload Stage
         if 'xlsx' in upload_file.name:
+            #return redirect('index')
             switch = True
             filename = os.path.join(BASE_DIR, 'static', upload_file.name.replace('xlsx', 'csv').replace('xls', 'csv'))
             read_file(upload_file, dtype=str).to_csv(filename, index=False)
             upload_file = open(filename)
+
         line, found = True, False
         while line:
             line = upload_file.readline()
@@ -139,8 +141,7 @@ def export(request, gene_name, protein):
 
 
 def exported(request, gene_name, protein):
-    pass
-    """try:
+    try:
         item = Variant.objects.get(gene__name=gene_name, protein=protein)
     except Variant.DoesNotExist:
         raise Http404('Variant does not exist')
@@ -154,4 +155,4 @@ def exported(request, gene_name, protein):
     with fs.open('report.pdf') as pdf:
         response = HttpResponse(pdf, content_type='application/pdf')
         response['Content-Disposition'] = "attachment; filename=report.pdf"
-        return response"""
+        return response
