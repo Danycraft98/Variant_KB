@@ -32,8 +32,8 @@
             <dl class='row'>
                 {% for key, val in item.gene.get_fields.items %}
                     {% if 'Act' in key or 'Note' in key or 'Date' in key %}
-                        <dt class='col-4'>{{ key }}</dt>
-                        <dd class='col-8'>{{ val }}</dd>
+                        <dt class='col-4 my-1'>{{ key }}</dt>
+                        <dd class='col-8 my-1'>{{ val }}</dd>
                     {% endif %}
                 {% endfor %}
             </dl>
