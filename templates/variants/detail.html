@@ -24,17 +24,35 @@
         {% include 'partials/_detail.html' %}
     </div>
 
+    <div class='container-fluid card shadow-none my-5 mx-0 p-0 row'>
+        <div class='card-header'>
+            <div class='font-weight-bold h6 my-auto'>Gene Rule: {{ item.gene }}</div>
+        </div>
+        <div class='card-body container pb-0'>
+            <dl class='row'>
+                {% for key, val in item.gene.get_fields.items %}
+                    {% if 'Act' in key or 'Note' in key or 'Date' in key %}
+                        <dt class='col-4'>{{ key }}</dt>
+                        <dd class='col-8'>{{ val }}</dd>
+                    {% endif %}
+                {% endfor %}
+            </dl>
+        </div>
+    </div>
+
     <div class='card my-5 shadow-none'>
         <div class='container-fluid m-0 p-0 row'>
-            <div class='nav nav-tabs col-12 d-flex justify-content-start mb-0' id='nav-tab' role='tablist'>
-                {% for dx in item.diseases.all %}
-                    <a class='nav-link {% if forloop.counter0 == 0 %}active{% endif %}'
-                       href='#div{{ forloop.counter0 }}' data-bs-toggle='tab' role='tab' aria-controls='nav'
-                       aria-selected='false'>
-                        {{ dx.branch | upper }} Disease: {{ dx.name }}
-                    </a>
-                {% endfor %}
-            </div>
+            {% if item.diseases.count %}
+                <div class='nav nav-tabs mb-0' id='nav-tab' role='tablist'>
+                    {% for dx in item.diseases.all %}
+                        <a class='nav-link {% if forloop.counter0 == 0 %}active{% endif %}'
+                           href='#div{{ forloop.counter0 }}' data-bs-toggle='tab' role='tab' aria-controls='nav'
+                           aria-selected='false'>
+                            {{ dx.branch | upper }} Disease: {{ dx.name }}
+                        </a>
+                    {% endfor %}
+                </div>
+            {% endif %}
 
             <div class='p-0 tab-content' id='tab-content'>
                 {% for dx in item.diseases.all %}
@@ -51,8 +69,6 @@
 
                         <div class='card-body container pb-0'>
                             <dl class='row'>
-                                <dt class='col-4'>Gene Curation Notes</dt>
-                                <dd class='col-8'>{{ item.gene.gene_curation_notes }}</dd>
                                 {% with items=dx %}
                                     {% include 'partials/_field_grp.html' %}
                                 {% endwith %}

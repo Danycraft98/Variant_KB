@@ -110,6 +110,14 @@ SO_DX_CHOICES = [
     #            "Sarcoma", "Cancer of Unknown Primary"]]
 ]
 
+MUT_TYPE_CHOICES = [
+    list(repeat("GOF", 2)),
+    list(repeat("LOF", 2)),
+    list(repeat("CN Loss", 2)),
+    list(repeat("CN Amplification", 2)),
+    list(repeat("Fusion", 2))
+]
+
 ITEMS = {  # 'PVS1 - SA': ['Stand Alone - whole gene deletion', 10],
     'PVS1': ['nonsense, fs, +/-2 splice site, start loss, whole exon deletion', 10],
 

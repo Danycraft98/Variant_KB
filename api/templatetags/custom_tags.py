@@ -17,8 +17,12 @@ def get_prefix(form):
 
 
 @register.filter
-def get_pane(obj, item):
-    return obj.get_pane(item)
+def exec_method(obj, item=None):
+    try:
+        print(obj.get_fields())
+        return obj.get_pane(item) if hasattr(obj, 'get_pane') else obj.get_values()
+    except AttributeError:
+        print(obj, 'tea')
 
 
 @register.filter

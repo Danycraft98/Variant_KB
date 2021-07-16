@@ -5,7 +5,7 @@ from django.http import HttpResponse, Http404
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.utils import timezone
-from weasyprint import HTML, CSS
+# from weasyprint import HTML, CSS
 
 from api.models import *
 from api.tables import VariantTable, HistoryTable
@@ -33,7 +33,6 @@ def search(request):
             search_query.update({'protein__icontains': PROTEIN_DICT[protein.upper()] if protein.upper() in PROTEIN_DICT else protein})
         if disease2:
             search_query.update({'diseases__name__icontains': disease2})
-        print(search_query)
         variant_list = VariantTable(Variant.objects.filter(**search_query))
         return render(request, 'variants/index.html', {'table': variant_list, 'title': ('pe-7s-search', 'Search Result', '')})
     return render(request, 'general/search.html', {'form': search_form, 'title': ('pe-7s-search', 'Search', 'Find the variant information by search.')})
@@ -95,7 +94,6 @@ def upload(request):
 
     elif submit_list:
         # Submit Upload Stage
-        pmids = ['oncokb', 'watson', 'qci', 'jaxckb']
         headers, values = request.POST.get('headers', None).split('^'), request.POST.getlist('row_val', None)
         for submit in submit_list:
             values, variant_fields = submit.split('^'), ['cdna', 'protein', 'chr', 'transcript', 'start', 'end', 'alt', 'ref']
@@ -111,7 +109,7 @@ def upload(request):
                         continue
                     VariantField.objects.filter(id=field_obj.id).update(value=row.get(key, ''))
 
-            History.objects.create(content='Update' if new_variant.history.count() else 'Upload', timestamp=timezone.now(), user=request.user, variant=new_variant)
+            History.objects.create(content='Update' if new_variant.history.count() else 'Upload', user=request.user, variant=new_variant)
             for hotspot in raw_cancerhotspot:
                 if hotspot == 'na':
                     break
@@ -141,7 +139,8 @@ def export(request, gene_name, protein):
 
 
 def exported(request, gene_name, protein):
-    try:
+    pass
+    """try:
         item = Variant.objects.get(gene__name=gene_name, protein=protein)
     except Variant.DoesNotExist:
         raise Http404('Variant does not exist')
@@ -155,4 +154,4 @@ def exported(request, gene_name, protein):
     with fs.open('report.pdf') as pdf:
         response = HttpResponse(pdf, content_type='application/pdf')
         response['Content-Disposition'] = "attachment; filename=report.pdf"
-        return response
+        return response"""

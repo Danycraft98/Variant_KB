@@ -1,5 +1,4 @@
 from django import forms
-from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.forms import modelformset_factory, BaseModelFormSet, model_to_dict
 
@@ -61,6 +60,16 @@ class BaseCustomModelFormSet(BaseModelFormSet):
         return form_list
 
 
+class GeneForm(forms.ModelForm):
+    actionable = forms.ChoiceField(required=False, widget=forms.Select(attrs={'placeholder': 'Disease Name'}))
+    not_actionable = forms.ChoiceField(required=False, widget=forms.Select(attrs={'placeholder': 'Disease Name'}))
+
+    class Meta:
+        model = Gene
+        fields = ['actionable', 'not_actionable', 'mut_type', 'region', 'gene_curation_notes']
+
+
+# Disease & Evidence Forms--------------------------------------------------------------------------------------
 class DiseaseForm(forms.ModelForm):
     gene_curation_notes = forms.CharField(required=False, widget=forms.Textarea())
     name = forms.ChoiceField(choices=GP_DX_CHOICES, widget=forms.Select(attrs={'placeholder': 'Disease Name'}))

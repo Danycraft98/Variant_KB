@@ -7,10 +7,7 @@ from django.db.models import Q
 from accounts.models import User
 from .constants import *
 
-__all__ = [
-    'Gene', 'Variant', 'Disease', 'History', 'PredPMID', 'CancerHotspot',
-    'Score', 'Evidence', 'Report', 'ITEMS', 'VariantField'
-]
+__all__ = ['Gene', 'Variant', 'Disease', 'Review', 'History', 'CancerHotspot', 'Score', 'Evidence', 'Report', 'ITEMS', 'VariantField']
 
 
 class BaseModel(models.Model):
@@ -49,7 +46,13 @@ class Gene(BaseModel):
     pub_date = models.DateTimeField('date published', auto_now_add=True)
     content = models.TextField(null=True, blank=True)
     germline_content = models.TextField(null=True, blank=True)
+
+    actionable = models.CharField('Actionable In', max_length=50, null=True, blank=True)
+    not_actionable = models.CharField('Not Actionable In', max_length=50, null=True, blank=True)
+    mut_type = models.CharField('Actionable Mutation Types', max_length=50, choices=MUT_TYPE_CHOICES, null=True, blank=True)
+    region = models.CharField('Actionable Regions', max_length=50, null=True, blank=True)
     gene_curation_notes = models.TextField(verbose_name='Gene Curation Notes', max_length=255, blank=True, default='')
+    reviewed_date = models.DateTimeField('Last Reviewed Date', null=True, blank=True)
 
     class Meta:
         ordering = ['name']
@@ -58,14 +61,18 @@ class Gene(BaseModel):
         """ The string method """
         return self.name
 
+    def get_values(self):
+        print(self.get_fields(), 'sdf')
+        return []
+
 
 class Variant(BaseModel):
     """ A class used to represent a Variant object """
     gene = models.ForeignKey(Gene, related_name='variants', on_delete=models.CASCADE)
-    cdna = models.CharField(verbose_name='c.', max_length=10, default='')
-    protein = models.CharField(verbose_name='p.', max_length=20, unique=True)
+    cdna = models.CharField('c.', max_length=20, default='')  # TODO: max length longer
+    protein = models.CharField('p.', max_length=20, unique=True)
 
-    chr = models.CharField(verbose_name='Chromosome', max_length=6, default='')
+    chr = models.CharField('Chromosome', max_length=6, default='')
     transcript = models.CharField(max_length=20)
     start = models.CharField(max_length=10, default='')
     end = models.CharField(max_length=10, default='')
@@ -85,21 +92,21 @@ class Variant(BaseModel):
         pane_item, rtn_dict = {
             'main': ['transcript', 'chr', 'start', 'end', 'ref', 'alt'],
             'detail': [
-                'exonicfunc.uhnclggene', 'af', 'af_popmax', 'cosmic70', 'clinvar',
-                'insilicodamaging', 'insilicobenign', 'tcga#occurances'
+                'ExonicFunc.UHNCLGGene', 'AF', 'AF_Popmax', 'Cosmic70', 'Clinvar',
+                'InSilicoDamaging', 'InSilicoBenign', 'TCGA#occurances'
             ],
-            'score': ['oncokb', 'oncokb_pmids', 'watson', 'watson_pmids', 'qci', 'qci_pmids', 'jaxckb'],
-            'link': ['google', 'civic', 'alamut'],
+            'score': ['OncoKB', 'OncoKB_PMIDs', 'Watson', 'Watson_PMIDs', 'QCI', 'QCI_PMIDs', 'JAX_variant'],
+            'link': ['Google', 'CIViC', 'Alamut'],
         }.get(item, []), {}
         verbose_dict = {field.name: field.verbose_name for field in self._meta.fields}
         for field_name in pane_item:
-            var_field = VariantField.get_value(self.id, field_name)
-            rtn_dict[verbose_dict.get(field_name, field_name)] = self.serializable_value(field_name) if item == 'main' else var_field if field_name != 'pmid_list' else ''
+            var_field = VariantField.get_value(self.id, field_name.lower())
+            rtn_dict[verbose_dict.get(field_name, field_name)] = self.serializable_value(field_name) if item == 'main' else var_field
         return rtn_dict.items()
 
 
 class VariantField(BaseModel):
-    name = models.CharField(verbose_name='field name', max_length=50, default='')
+    name = models.CharField('field name', max_length=50, default='')
     value = models.CharField(max_length=500, default='')
     variant = models.ForeignKey(Variant, related_name='fields', on_delete=models.CASCADE, null=True, blank=True)
 
@@ -123,31 +130,17 @@ class CancerHotspot(BaseModel):
         return self.hotspot
 
 
-# Delete
-class PredPMID(BaseModel):
-    name = models.CharField(max_length=40, default='')
-    value = models.CharField(max_length=40, default='')
-    pmids = models.CharField(max_length=50, default='')
-    variant = models.ForeignKey(Variant, related_name='pmid_list', on_delete=models.CASCADE, null=True, blank=True)
-
-
 class Disease(BaseModel):
     """ A class used to represent a Disease object """
     name = models.CharField(max_length=50)
     branch = models.CharField(choices=BRANCH_CHOICES, max_length=2, default='no')
-    func_sig = models.CharField(verbose_name='Functional Significance', choices=FUNC_SIG_CHOICES, max_length=20, null=True, blank=True)
-    others = models.CharField(verbose_name='Tier', choices=TIER_CHOICES, max_length=20, null=True, blank=True)
-    report = models.TextField(verbose_name='Germline Report', max_length=255, blank=True, default='')
+    func_sig = models.CharField('Functional Significance', choices=FUNC_SIG_CHOICES, max_length=20, null=True, blank=True)
+    others = models.CharField('Tier', choices=TIER_CHOICES, max_length=20, null=True, blank=True)
+    report = models.TextField('Germline Report', max_length=255, blank=True, default='')
     variant = models.ForeignKey(Variant, related_name='diseases', on_delete=models.CASCADE, null=True, blank=True)
 
     reviewed = models.CharField(choices=REVIEWED_CHOICES, max_length=1, default='n')
-    reviewed_date = models.DateTimeField('reviewed date', null=True, blank=True)
-    review_user = models.ForeignKey(User, related_name='reviewed_variants', on_delete=models.CASCADE, null=True, blank=True)
-    meta_reviewed_date = models.DateTimeField('meta-reviewed date', null=True, blank=True)
-    meta_review_user = models.ForeignKey(User, related_name='meta_reviewed_variants', on_delete=models.CASCADE, null=True, blank=True)
-    approved_date = models.DateTimeField('approved date', null=True, blank=True)
-    approve_user = models.ForeignKey(User, related_name='approved_variants', on_delete=models.CASCADE, null=True, blank=True)
-    curation_notes = models.TextField(verbose_name='Curation Notes', max_length=255, blank=True, default='')
+    curation_notes = models.TextField('Curation Notes', max_length=255, blank=True, default='')
 
     def __str__(self):
         """ The string method """
@@ -167,15 +160,22 @@ class Disease(BaseModel):
             self.score.delete()
 
     def get_date(self):
-        return self.approved_date if self.approved_date else self.meta_reviewed_date if self.meta_reviewed_date\
-            else self.reviewed_date if self.reviewed_date else None
+        review = Review.objects.filter(disease=self)
+        return review.last().date if review.count() else None
+
+
+class Review(BaseModel):
+    review = models.CharField(choices=REVIEWED_CHOICES, max_length=1)
+    user = models.ForeignKey(User, related_name='reviews', on_delete=models.CASCADE, null=True)
+    date = models.DateTimeField('date', auto_now_add=True)
+    disease = models.ForeignKey(Disease, related_name='reviews', on_delete=models.CASCADE)
 
 
 class Score(BaseModel):
     """ A class used to represent a Score object """
-    for_score = models.CharField(verbose_name='For Pathogenicity', max_length=20, default='Uncertain')
-    against_score = models.CharField(verbose_name='Against Pathogenicity', max_length=20, default='Uncertain')
-    content = models.CharField(verbose_name='ACMG Classification', max_length=100, default='Uncertain')
+    for_score = models.CharField('For Pathogenicity', max_length=20, default='Uncertain')
+    against_score = models.CharField('Against Pathogenicity', max_length=20, default='Uncertain')
+    content = models.CharField('ACMG Classification', max_length=100, default='Uncertain')
     disease = models.OneToOneField(Disease, related_name='score', on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
@@ -185,37 +185,36 @@ class Score(BaseModel):
 
 class Evidence(BaseModel):
     """ A class used to represent a Evidence object """
-    item = models.CharField(verbose_name='Functional Category', max_length=75, default='', blank=True)
+    item = models.CharField('Functional Category', max_length=75, default='', blank=True)
     source_type = models.CharField(max_length=2, choices=TYPE_CHOICES)
     source_id = models.CharField(max_length=20, blank=True, default='')
     statement = models.TextField(null=True, blank=True, default='')
 
     evid_sig = models.CharField(
-        verbose_name='Evidence Significance', max_length=4,
+        'Evidence Significance', max_length=4,
         choices=EVID_SIG_CHOICES, null=True, blank=True
     )
     level = models.CharField(
-        verbose_name='Evidence Level', max_length=1,
+        'Evidence Level', max_length=1,
         choices=EVID_LEVEL_CHOICES, null=True, blank=True
     )
     evid_dir = models.BooleanField(
-        verbose_name='Evidence Direction', choices=EVID_DIR_CHOICES,
+        'Evidence Direction', choices=EVID_DIR_CHOICES,
         null=True, blank=True
     )
     clin_sig = models.CharField(
-        verbose_name='Clinical Significance', choices=CLIN_SIG_CHOICES,
+        'Clinical Significance', choices=CLIN_SIG_CHOICES,
         max_length=25, null=True, blank=True
     )
-    drug_class = models.TextField(verbose_name='Drug/Drug Class/Dx', null=True, blank=True)
+    drug_class = models.TextField('Drug/Drug Class/Dx', null=True, blank=True)
     evid_rating = models.IntegerField(
-        verbose_name='Evidence Rating', choices=EVID_RATING_CHOICES,
+        'Evidence Rating', choices=EVID_RATING_CHOICES,
         null=True, blank=True
     )
     disease = models.ForeignKey(Disease, related_name='evidences', on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         """ The string method """
-        print(ITEMS.keys())
         if self.item:
             return list(ITEMS.keys())[int(self.item)] if self.item.isnumeric() else self.item
         return 'Actionability'

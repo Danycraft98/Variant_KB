@@ -61,6 +61,7 @@ def variant(request, gene_name, protein):
         return render(request, 'variants/detail.html', param)
 
     param.update({
+        'gene_form': GeneForm(request.POST or None, request.FILES or None, initial=item.gene.__dict__),
         'forms': [
             SODiseaseFormset(request.POST or None, request.FILES or None, prefix='so-dx', queryset=item.diseases.filter(branch='so')),
             GPDiseaseFormset(request.POST or None, request.FILES or None, prefix='gp-dx', queryset=item.diseases.filter(branch='gp'))
@@ -70,7 +71,12 @@ def variant(request, gene_name, protein):
         ), 'user': request.user
     })
     if request.method == 'POST':
-        final_save = False
+        if param.get('gene_form').is_valid():
+            Gene.objects.filter(id=item.gene.id).update(**param.get('gene_form').cleaned_data, reviewed_date=timezone.now())
+        else:
+            print(param.get('gene_form').errors)
+
+        final_save = param.get('gene_form').is_valid()
         for formset in param.get('forms'):
             new_dxs, is_saved = save_formset(formset, {'variant': item}, True)
             for form in formset.forms:
@@ -81,19 +87,14 @@ def variant(request, gene_name, protein):
                     break
             final_save = True if is_saved else final_save
             for dx in new_dxs:
-                if not dx:
+                if not dx or dx.reviewed == 'n':
                     continue
 
-                if dx.reviewed == 'r' and not dx.reviewed_date:
-                    dx.reviewed_date = timezone.now()
-                    dx.review_user = request.user
-                elif dx.reviewed == 'm' and not dx.meta_reviewed_date:
-                    dx.meta_reviewed_date = timezone.now()
-                    dx.meta_review_user = request.user
-                elif dx.reviewed == 'a' and not dx.approved_date:
-                    dx.approved_date = timezone.now()
-                    dx.approve_user = request.user
-                dx.save()
+                review, exist = Review.objects.get_or_create(review=dx.reviewed, disease_id=dx.id)
+                if exist:
+                    review.user = param.get('user')
+                    History.objects.update_or_create(content='Reviewed status changed to {status}.'.format(status=dx.get_reviewed_display(), variant=item, user=param.get('user')))
+                    review.save()
 
         if final_save:
             return HttpResponseRedirect(reverse('variant_text', args=[gene_name, protein]))

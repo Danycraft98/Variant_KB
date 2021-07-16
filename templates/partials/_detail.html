@@ -42,9 +42,9 @@
                     </dd>
                 {% endif %}
 
-                {% for key, val in item|get_pane:pane_name %}
+                {% for key, val in item|exec_method:pane_name %}
 
-                    {% if val and val != 'na' %}
+                    {% if val and val != 'na' and val != 'N/A' %}
 
                         <dt class='col-3 text-right'>{{ key|capfirst }}</dt>
                         <dd class='col-custom p-0'></dd>
@@ -53,7 +53,7 @@
                                 {% with links=val|get_div_or_link:';' %}
                                     {{ links | safe }}
                                 {% endwith %}
-                            {% elif key == 'link' %}
+                            {% elif pane_name == 'link' %}
                                 <a target='_blank' href='{{ val }}'>Link to {{ key }}</a>
                             {% else %}
                                 {{ val }}
