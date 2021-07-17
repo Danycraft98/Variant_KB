@@ -19,17 +19,19 @@
 
         <div class='form-inline collapse navbar-collapse' id='navbarNav_right'>
             <div class='navbar-nav ml-auto'>
-                <button type='button' class='nav-item nav-link btn btn-primary' data-bs-toggle='modal' data-bs-target='#uploadModal'>Upload</button>
-
-                <div class='dropdown'>
-                    <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-                        Upload
-                    </button>
-                    <div class='dropdown-menu dropdown-menu-end'>
-                        <a class='dropdown-item' data-bs-toggle='modal' data-bs-target='#uploadModal'>Upload Spreadsheet</a>
-                        <a class='dropdown-item' data-bs-toggle='modal' data-bs-target='#JSONModal'>Upload JSON</a>
+                {% if user.is_admin %}
+                    <div class='dropdown'>
+                        <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                            Upload
+                        </button>
+                        <div class='dropdown-menu dropdown-menu-end'>
+                            <a class='dropdown-item' data-bs-toggle='modal' data-bs-target='#uploadModal'>Upload Spreadsheet</a>
+                            <a class='dropdown-item' data-bs-toggle='modal' data-bs-target='#JSONModal'>Upload JSON</a>
+                        </div>
                     </div>
-                </div>
+                {% elif user.is_authenticated %}
+                    <button type='button' class='nav-item nav-link btn btn-primary' data-bs-toggle='modal' data-bs-target='#uploadModal'>Upload</button>
+                {% endif %}
 
                 {% if user.is_authenticated %}
                     <div class='dropdown'>
