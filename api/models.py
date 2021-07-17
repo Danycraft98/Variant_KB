@@ -69,8 +69,8 @@ class Gene(BaseModel):
 class Variant(BaseModel):
     """ A class used to represent a Variant object """
     gene = models.ForeignKey(Gene, related_name='variants', on_delete=models.CASCADE)
-    cdna = models.CharField('c.', max_length=20, default='')  # TODO: max length longer
-    protein = models.CharField('p.', max_length=20, unique=True)
+    cdna = models.CharField('c.', max_length=60, default='')  # TODO: max length longer
+    protein = models.CharField('p.', max_length=60)
 
     chr = models.CharField('Chromosome', max_length=6, default='')
     transcript = models.CharField(max_length=20)

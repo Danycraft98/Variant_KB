@@ -1,3 +1,5 @@
+import json
+
 from django.contrib.auth.decorators import login_required
 from django.core.files.storage import FileSystemStorage
 from django.core.mail import send_mail
@@ -58,7 +60,7 @@ def upload(request):
     if upload_file:
         # Upload Stage
         if 'xlsx' in upload_file.name:
-            #return redirect('index')
+            # return redirect('index')
             switch = True
             filename = os.path.join(BASE_DIR, 'static', upload_file.name.replace('xlsx', 'csv').replace('xls', 'csv'))
             read_file(upload_file, dtype=str).to_csv(filename, index=False)
@@ -118,6 +120,32 @@ def upload(request):
                     break
                 values = hotspot.split(':')
                 CancerHotspot.objects.create(hotspot=values[0], count=int(values[1]) if len(values) > 1 else 0, variant=new_variant)
+    return redirect('index')
+
+
+@login_required
+def json_upload(request):
+    upload_file = request.FILES.get('file', None)
+    raw_data = json.load(upload_file).get('molecularVariants')
+    for var_content in raw_data:
+        VARIANT_FIELD_DICT = {'reference': 'ref', 'alternative': 'alt', 'transcript': 'transcript', 'cNomen': 'cdna', 'pNomen': 'protein', 'chromosome': 'chr', 'start': 'start', 'stop': 'end'}
+        variant_content = {val: var_content.pop(key) for key, val in VARIANT_FIELD_DICT.items()}
+        gene, created = Gene.objects.get_or_create(name=var_content.pop('gene'))
+        variant_content['chr'] = 'chr' + variant_content.pop('chr')
+        if not variant_content.get('protein'):
+            variant_content.pop('protein')
+        variant, created = Variant.objects.get_or_create(gene=gene, protein=variant_content.get('protein', 'p.' + variant_content.get('cdna', '')))
+        if created:
+            Variant.objects.filter(id=variant.id).update(**variant_content)
+            VariantField.objects.get_or_create(
+                name='exonicfunc.uhnclggene', variant=variant,
+                value=(var_content.get('effect') if var_content.get('effect') else '') +' ' + (var_content.get('type') if var_content.get('type') else '')
+            )
+
+        disease, created = Disease.objects.get_or_create(variant=variant, branch='so', name='Alissa Gyne MVL', reviewed='n')
+        report, created = Report.objects.get_or_create(disease=disease, report_name='Variant-Descriptive')
+        report.content = var_content.get('variantInfo', '') + var_content.get('reportAbstract', '')
+        report.save()
     return redirect('index')
 
 

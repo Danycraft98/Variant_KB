@@ -91,6 +91,8 @@ class BaseDiseaseTable(tables.Table):
 
 
 class DiseaseCardTable(BaseDiseaseTable):
+    variant = tables.LinkColumn('variant_text', args=[A('variant.gene.name'), A('variant.protein')], text=lambda record: record.variant, empty_values=())
+
     class Meta:
         fields = sequence = ('name', 'branch', 'variant', 'evidences')
         exclude = (

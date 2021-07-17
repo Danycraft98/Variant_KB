@@ -14,6 +14,11 @@ div.scrollmenu {
     white-space: nowrap;
 }
 
+.dropdown-menu-end {
+    left: auto !important;
+    right: 0 !important;
+}
+
 .hidden {
     position: absolute;
     visibility: hidden;

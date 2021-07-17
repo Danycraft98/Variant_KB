@@ -75,8 +75,8 @@ class Migration(migrations.Migration):
             name='Variant',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('cdna', models.CharField(default='', max_length=20, verbose_name='c.')),
-                ('protein', models.CharField(max_length=20, unique=True, verbose_name='p.')),
+                ('cdna', models.CharField(default='', max_length=60, verbose_name='c.')),
+                ('protein', models.CharField(max_length=60, unique=True, verbose_name='p.')),
                 ('chr', models.CharField(default='', max_length=6, verbose_name='Chromosome')),
                 ('transcript', models.CharField(max_length=20)),
                 ('start', models.CharField(default='', max_length=10)),
