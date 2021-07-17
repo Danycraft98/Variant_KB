@@ -101,7 +101,10 @@ def upload(request):
             variant_dict = {key: row.get(key, None) for key in variant_fields}
             gene_obj, gene_exists = Gene.objects.update_or_create(name=gene)
             raw_cancerhotspot = row.pop('cancerhotspots', 'na').split('|')
-            new_variant, _ = Variant.objects.get_or_create(gene=gene_obj, **variant_dict)
+            new_variant, created = Variant.objects.get_or_create(gene=gene_obj, protein=variant_dict.get('protein'))
+            if not created:
+                Variant.objects.filter(id=new_variant.id).update(**variant_dict)
+
             for key in headers:
                 if key not in variant_fields:
                     field_obj, _ = VariantField.objects.get_or_create(variant=new_variant, name=key)

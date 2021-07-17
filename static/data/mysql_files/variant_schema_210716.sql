@@ -378,7 +378,7 @@ DROP TABLE IF EXISTS `api_variant`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `api_variant` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `cdna` varchar(10) NOT NULL,
+  `cdna` varchar(20) NOT NULL,
   `protein` varchar(20) NOT NULL,
   `chr` varchar(6) NOT NULL,
   `transcript` varchar(20) NOT NULL,
