@@ -33,8 +33,32 @@
                     <dd class='other col-4'>{{ item.gene }}</dd>
                     <dd class='other col-4'></dd>
 
+                    <dt class='other col-4'><label for='act-value0'>Actionable In</label></dt>
+                    <dd class='other col-8' >
+                        <select id='act-value0' name='act-in' multiple>
+                        </select>
+                    </dd>
+
+                    <dt class='other col-4'><label for='act-value1'>Not Actionable In</label></dt>
+                    <dd class='other col-8'>
+                        <select id='act-value1' name='not-act-in' multiple>
+                        </select>
+                    </dd>
+
+                    <dt class='other col-4'><label for='act-value2'>Actionable Mutation Types</label></dt>
+                    <dd class='other col-4'>
+                        <select id='act-value2' name='mut-type' multiple>
+                            <option>GOF</option>
+                            <option>LOF</option>
+                            <option>CN Loss</option>
+                            <option>CN Amplification=</option>
+                            <option>Fusion</option>
+                        </select>
+                    </dd>
+                    <dd class='other col-4'></dd>
+
                     {% for field in gene_form %}
-                        <dt class='other col-4'><label for='field.id_for_label'>{{ field.label }}</label></dt>
+                        <dt class='other col-4'><label for='{{ field.id_for_label }}'>{{ field.label }}</label></dt>
                         <dd class='other col-4'>{{ field }}</dd>
                         <dd class='other col-4'></dd>
                     {% endfor %}
@@ -148,15 +172,6 @@
     <script src="{% static 'js/autosize.min.js' %}"></script>
     <script src="{% static 'js/detail.js' %}"></script>
     <script>
-        add_options("{% static 'data/so_dx.json' %}", '#id_not_actionable');
-        add_options("{% static 'data/so_dx.json' %}", '#id_actionable');
-
-        $('#id_not_actionable,#id_actionable').attr('style', 'width:100%;').select2({
-            selectionCssClass: "form-select", placeholder: "SO Disease",
-            allowClear: false, tags: true, width: 'style',
-            matcher: modelMatcher
-        });
-
         function enable_second(element) {
             if ($(element).text().includes('Reviewed'))
                 $($(element).parents('dd').children()[2]).removeAttr('disabled')
@@ -169,6 +184,15 @@
         }
 
         $(document).ready(function () {
+            $("[id^='act-value']").each(function (_, key) {
+                if (!key.id.includes('2')) add_options("{% static 'data/so_dx.json' %}", "#act-value0,#act-value1");
+                $(key).attr('style', 'width:100%;').select2({
+                    selectionCssClass: "form-select", allowClear: false,
+                    tags: true, width: 'style', matcher: modelMatcher
+                });
+            })
+
+
             autosize(document.querySelectorAll('textarea'));
 
             // Detail Tab height Set-up

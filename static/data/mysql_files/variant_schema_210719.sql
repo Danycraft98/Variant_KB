@@ -232,8 +232,8 @@ CREATE TABLE `api_gene` (
   `mut_type` varchar(50),
   `region` varchar(50),
   `reviewed_date` datetime(6),
-
   `gene_curation_notes` longtext NOT NULL,
+
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -341,6 +341,37 @@ LOCK TABLES `api_report` WRITE;
 /*!40000 ALTER TABLE `api_report` ENABLE KEYS */;
 UNLOCK TABLES;
 
+
+--
+-- Table structure for table `api_review`
+--
+
+DROP TABLE IF EXISTS `api_review`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `api_review` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `review` varchar(1) NOT NULL,
+  `date` datetime(6) NOT NULL,
+  `disease_id` int NOT NULL,
+  `user_id` int DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `api_review_disease_id_79f427e0_fk_api_disease_id` (`disease_id`),
+  KEY `api_review_user_id_8bf97ad4_fk_accounts_user_id` (`user_id`),
+  CONSTRAINT `api_review_disease_id_79f427e0_fk_api_disease_id` FOREIGN KEY (`disease_id`) REFERENCES `api_disease` (`id`),
+  CONSTRAINT `api_review_user_id_8bf97ad4_fk_accounts_user_id` FOREIGN KEY (`user_id`) REFERENCES `accounts_user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `api_review`
+--
+
+LOCK TABLES `api_review` WRITE;
+/*!40000 ALTER TABLE `api_review` DISABLE KEYS */;
+/*!40000 ALTER TABLE `api_review` ENABLE KEYS */;
+UNLOCK TABLES;
+
 --
 -- Table structure for table `api_score`
 --
@@ -378,8 +409,8 @@ DROP TABLE IF EXISTS `api_variant`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `api_variant` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `cdna` varchar(20) NOT NULL,
-  `protein` varchar(20) NOT NULL,
+  `cdna` varchar(60) NOT NULL,
+  `protein` varchar(60) NOT NULL,
   `chr` varchar(6) NOT NULL,
   `transcript` varchar(20) NOT NULL,
   `start` varchar(10) NOT NULL,

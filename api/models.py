@@ -7,7 +7,7 @@ from django.db.models import Q
 from accounts.models import User
 from .constants import *
 
-__all__ = ['Gene', 'Variant', 'Disease', 'Review', 'History', 'CancerHotspot', 'Score', 'Evidence', 'Report', 'ITEMS', 'VariantField']
+__all__ = ['Gene', 'GeneField', 'Variant', 'Disease', 'Review', 'History', 'CancerHotspot', 'Score', 'Evidence', 'Report', 'ITEMS', 'VariantField']
 
 
 class BaseModel(models.Model):
@@ -47,9 +47,6 @@ class Gene(BaseModel):
     content = models.TextField(null=True, blank=True)
     germline_content = models.TextField(null=True, blank=True)
 
-    actionable = models.CharField('Actionable In', max_length=50, null=True, blank=True)
-    not_actionable = models.CharField('Not Actionable In', max_length=50, null=True, blank=True)
-    mut_type = models.CharField('Actionable Mutation Types', max_length=50, choices=MUT_TYPE_CHOICES, null=True, blank=True)
     region = models.CharField('Actionable Regions', max_length=50, null=True, blank=True)
     gene_curation_notes = models.TextField(verbose_name='Gene Curation Notes', max_length=255, blank=True, default='')
     reviewed_date = models.DateTimeField('Last Reviewed Date', null=True, blank=True)
@@ -64,6 +61,16 @@ class Gene(BaseModel):
     def get_values(self):
         print(self.get_fields(), 'sdf')
         return []
+
+
+class GeneField(BaseModel):
+    name = models.CharField('field name', max_length=50, default='', choices=[
+        ('actionable', 'Actionable In'),
+        ('not_actionable', 'Not Actionable In'),
+        ('mut_type', 'Actionable Mutation Types'),
+    ])
+    value = models.CharField(max_length=50, default='')
+    gene = models.ForeignKey(Gene, related_name='actionability', on_delete=models.CASCADE)
 
 
 class Variant(BaseModel):
@@ -90,14 +97,14 @@ class Variant(BaseModel):
 
     def get_pane(self, item):
         pane_item, rtn_dict = {
-            'main': ['transcript', 'chr', 'start', 'end', 'ref', 'alt'],
-            'detail': [
-                'ExonicFunc.UHNCLGGene', 'AF', 'AF_Popmax', 'Cosmic70', 'Clinvar',
-                'InSilicoDamaging', 'InSilicoBenign', 'TCGA#occurances'
-            ],
-            'score': ['OncoKB', 'OncoKB_PMIDs', 'Watson', 'Watson_PMIDs', 'QCI', 'QCI_PMIDs', 'JAX_variant'],
-            'link': ['Google', 'CIViC', 'Alamut'],
-        }.get(item, []), {}
+                                  'main': ['transcript', 'chr', 'start', 'end', 'ref', 'alt'],
+                                  'detail': [
+                                      'ExonicFunc.UHNCLGGene', 'AF', 'AF_Popmax', 'Cosmic70', 'Clinvar',
+                                      'InSilicoDamaging', 'InSilicoBenign', 'TCGA#occurances'
+                                  ],
+                                  'score': ['OncoKB', 'OncoKB_PMIDs', 'Watson', 'Watson_PMIDs', 'QCI', 'QCI_PMIDs', 'JAX_variant'],
+                                  'link': ['Google', 'CIViC', 'Alamut'],
+                              }.get(item, []), {}
         verbose_dict = {field.name: field.verbose_name for field in self._meta.fields}
         for field_name in pane_item:
             var_field = VariantField.get_value(self.id, field_name.lower())
@@ -136,7 +143,7 @@ class Disease(BaseModel):
     branch = models.CharField(choices=BRANCH_CHOICES, max_length=2, default='no')
     func_sig = models.CharField('Functional Significance', choices=FUNC_SIG_CHOICES, max_length=20, null=True, blank=True)
     others = models.CharField('Tier', choices=TIER_CHOICES, max_length=20, null=True, blank=True)
-    report = models.TextField('Germline Report', max_length=255, blank=True, default='')
+    # report = models.TextField('Germline Report', max_length=255, blank=True, default='')
     variant = models.ForeignKey(Variant, related_name='diseases', on_delete=models.CASCADE, null=True, blank=True)
 
     reviewed = models.CharField(choices=REVIEWED_CHOICES, max_length=1, default='n')

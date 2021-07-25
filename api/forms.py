@@ -61,12 +61,9 @@ class BaseCustomModelFormSet(BaseModelFormSet):
 
 
 class GeneForm(forms.ModelForm):
-    actionable = forms.ChoiceField(required=False, widget=forms.Select(attrs={'placeholder': 'Disease Name'}))
-    not_actionable = forms.ChoiceField(required=False, widget=forms.Select(attrs={'placeholder': 'Disease Name'}))
-
     class Meta:
         model = Gene
-        fields = ['actionable', 'not_actionable', 'mut_type', 'region', 'gene_curation_notes']
+        fields = ['region', 'gene_curation_notes']
 
 
 # Disease & Evidence Forms--------------------------------------------------------------------------------------

@@ -76,6 +76,15 @@ def variant(request, gene_name, protein):
         else:
             print(param.get('gene_form').errors)
 
+        for val in request.POST.getlist('act-in'):
+            GeneField.objects.get_or_create(gene=item.gene, name='actionable', value=val)
+
+        for val in request.POST.getlist('not-act-in'):
+            GeneField.objects.get_or_create(gene=item.gene, name='not_actionable', value=val)
+
+        for val in request.POST.getlist('mut-type'):
+            GeneField.objects.get_or_create(gene=item.gene, name='mut_type', value=val)
+
         final_save = param.get('gene_form').is_valid()
         for formset in param.get('forms'):
             new_dxs, is_saved = save_formset(formset, {'variant': item}, True)
