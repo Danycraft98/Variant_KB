@@ -34,15 +34,13 @@
                     <dd class='other col-4'></dd>
 
                     <dt class='other col-4'><label for='act-value0'>Actionable In</label></dt>
-                    <dd class='other col-8' >
-                        <select id='act-value0' name='act-in' multiple>
-                        </select>
+                    <dd class='other col-8'>
+                        <select id='act-value0' name='act-in' multiple></select>
                     </dd>
 
                     <dt class='other col-4'><label for='act-value1'>Not Actionable In</label></dt>
                     <dd class='other col-8'>
-                        <select id='act-value1' name='not-act-in' multiple>
-                        </select>
+                        <select id='act-value1' name='not-act-in' multiple></select>
                     </dd>
 
                     <dt class='other col-4'><label for='act-value2'>Actionable Mutation Types</label></dt>
@@ -183,14 +181,27 @@
             });
         }
 
+        add_options("{% static 'data/so_dx.json' %}", "#act-value0,#act-value1");
         $(document).ready(function () {
             $("[id^='act-value']").each(function (_, key) {
-                if (!key.id.includes('2')) add_options("{% static 'data/so_dx.json' %}", "#act-value0,#act-value1");
-                $(key).attr('style', 'width:100%;').select2({
-                    selectionCssClass: "form-select", allowClear: false,
-                    tags: true, width: 'style', matcher: modelMatcher
-                });
-            })
+                let raw_value;
+                if (!key.id.includes('2')) {
+                    raw_value = key.id.includes('0') ? {{ item.gene.actionability|filter:'actionable' | safe }} : $(key).val({{ item.gene.actionability|filter:'not_actionable' | safe }});
+                    /*$(key).children().each((_, opt) => {
+                        console.log(opt)
+                        if ($(opt).text().includes('Sex Cord Stromal Tumor')) $(opt).attr('selected', 'True')
+                        else console.log(opt)
+                    })*/
+                } else raw_value = {{ item.gene.actionability|filter:'mut_type' | safe }};
+                setTimeout(() => {
+                    $(key).val(raw_value)
+
+                    $(key).attr('style', 'width:100%;').select2({
+                        selectionCssClass: "form-select", allowClear: false,
+                        tags: true, width: 'style', matcher: modelMatcher
+                    });
+                }, 3000)
+            });
 
 
             autosize(document.querySelectorAll('textarea'));

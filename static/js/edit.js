@@ -145,7 +145,7 @@ function add_options(file, div_id) {
         $.map(data, function (val, key) {
             let grp = $(`<optgroup label='${key}'></optgroup>`)
             $.each(val, function (_, item) {
-                grp.append($(`<option>${item}</option>`));
+                grp.append($(`<option value='${item}'>${item}</option>`));
             })
             $(div_id).append(grp);
         })
