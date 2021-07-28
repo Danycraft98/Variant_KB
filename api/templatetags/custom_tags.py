@@ -19,10 +19,19 @@ def get_prefix(form):
 @register.filter
 def exec_method(obj, item=None):
     try:
-        print(obj.get_fields())
         return obj.get_pane(item) if hasattr(obj, 'get_pane') else obj.get_values()
     except AttributeError:
-        print(obj, 'tea')
+        print('AttributeError')
+
+
+@register.filter('filter')
+def gene_filter(obj, filter_txt):
+    try:
+        raw_list = obj.filter(name=filter_txt)
+        return [field.value for field in raw_list]
+    except AttributeError:
+        print('AttributeError')
+
 
 
 @register.filter

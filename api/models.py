@@ -59,7 +59,6 @@ class Gene(BaseModel):
         return self.name
 
     def get_values(self):
-        print(self.get_fields(), 'sdf')
         return []
 
 

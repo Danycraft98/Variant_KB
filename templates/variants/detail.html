@@ -30,7 +30,10 @@
         </div>
         <div class='card-body container pb-0'>
             <dl class='row'>
-
+                {% for act in item.gene.actionability.all %}
+                    <dt class='col-4 my-1'>{{ act.get_name_display }}</dt>
+                    <dd class='col-8 my-1'>{{ act.value }}</dd>
+                {% endfor %}
 
                 {% for key, val in item.gene.get_fields.items %}
                     {% if 'Act' in key or 'Note' in key or 'Date' in key %}

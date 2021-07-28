@@ -70,6 +70,7 @@ def variant(request, gene_name, protein):
             'Gene: {gene}; Disease Count: {count}'.format(gene=item.gene, count=item.diseases.count())
         ), 'user': request.user
     })
+    print(item.gene.actionability.filter(name='not_actionable'))
     if request.method == 'POST':
         if param.get('gene_form').is_valid():
             Gene.objects.filter(id=item.gene.id).update(**param.get('gene_form').cleaned_data, reviewed_date=timezone.now())

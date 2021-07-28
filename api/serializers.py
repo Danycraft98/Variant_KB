@@ -44,9 +44,16 @@ class VariantSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class GeneFieldSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Variant
+        fields = '__all__'
+
+
 class GeneSerializer(serializers.ModelSerializer):
     variants = VariantSerializer(required=False, many=True)
+    gene_fields = GeneFieldSerializer(required=False, many=True)
 
     class Meta:
         model = Gene
-        fields = ('name', 'content', 'variants')
+        fields = ('name', 'content', 'variants', 'gene_fields')
