@@ -7,7 +7,7 @@ import dj_email_url
 import dotenv as env
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 ALLOWED_HOSTS = ['*']
 SECRET_KEY = '0r%dj0ub-l26q=m#tpa$jfi5=21a)4a*m&^hc7@ki@n0^#ipo)'
 
@@ -102,7 +102,7 @@ USE_L10N = True
 USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
-STATIC_ROOT = '/staticfiles/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
