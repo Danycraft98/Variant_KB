@@ -7,7 +7,7 @@ import dj_email_url
 import dotenv as env
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 ALLOWED_HOSTS = ['*']
 SECRET_KEY = '0r%dj0ub-l26q=m#tpa$jfi5=21a)4a*m&^hc7@ki@n0^#ipo)'
 
