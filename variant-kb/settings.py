@@ -51,7 +51,7 @@ DATETIME_FORMAT = DATE_FORMAT = os.getenv('DATE_FORMAT', 'N j, Y')
 AUTH_USER_MODEL = 'accounts.User'
 LOGIN_REDIRECT_URL = '/'
 EMAIL = {
-    'default': dj_email_url.config(default=os.getenv('SENDGRID_URL', 'smtps://irene.chae@uhn.ca:scMN4244scMN4244@smtp.sendgrid.net:587')),
+    'default': dj_email_url.config(default=os.getenv('SENDGRID_URL', 'submission://irene.chae@uhn.ca:scMN4244scMN4244@smtp.sendgrid.net:587')),
 }
 # EMAIL_HOST_PASSWORD = os.getenv('SENDGRID_API_KEY', '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')
 
