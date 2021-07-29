@@ -7,13 +7,12 @@ import dj_email_url
 import dotenv as env
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 ALLOWED_HOSTS = ['*']
 SECRET_KEY = '0r%dj0ub-l26q=m#tpa$jfi5=21a)4a*m&^hc7@ki@n0^#ipo)'
 
 # Set environment variables
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-# TODO: smtps is depreciated use submission?
 env.load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 # Application definition
@@ -104,12 +103,12 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-STATIC_URL = '/static/'
+STATIC_URL = '/staticfiles/'
 STATICFILES_DIRS = [
     os.path.join(os.getenv('BASE_DIR', ''), 'static'),
 ]
 
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 # Upload Settings
 UPLOADS_PATH = join(dirname(realpath(__file__)), 'static/uploads/')
