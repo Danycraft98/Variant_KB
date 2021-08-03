@@ -227,9 +227,6 @@ CREATE TABLE `api_gene` (
   `content` longtext,
   `germline_content` longtext,
 
-  `actionable` varchar(50),
-  `not_actionable` varchar(50),
-  `mut_type` varchar(50),
   `region` varchar(50),
   `reviewed_date` datetime(6),
   `gene_curation_notes` longtext NOT NULL,
@@ -245,6 +242,33 @@ CREATE TABLE `api_gene` (
 LOCK TABLES `api_gene` WRITE;
 /*!40000 ALTER TABLE `api_gene` DISABLE KEYS */;
 /*!40000 ALTER TABLE `api_gene` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `api_genefield`
+--
+
+DROP TABLE IF EXISTS `api_genefield`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `api_genefield` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `group` varchar(50) DEFAULT NULL,
+  `name` varchar(50) NOT NULL,
+  `value` varchar(50) NOT NULL,
+  `gene_id` int DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `api_genefield gene_id_33723063_fk_api_gene_id` (`gene_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `api_genefield`
+--
+
+LOCK TABLES `api_genefield` WRITE;
+/*!40000 ALTER TABLE `api_genefield` DISABLE KEYS */;
+/*!40000 ALTER TABLE `api_genefield` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
