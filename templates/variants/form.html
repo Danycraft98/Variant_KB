@@ -35,17 +35,20 @@
 
                     <dt class='other col-4'><label for='act-value0'>Actionable In</label></dt>
                     <dd class='other col-8'>
-                        <select id='act-value0' name='act-in' multiple></select>
+                        <input name='act-in-grp' type='hidden'>
+                        <select id='act-value0' name='act-in' onchange='get_all_optgrp(this)' multiple></select>
                     </dd>
 
                     <dt class='other col-4'><label for='act-value1'>Not Actionable In</label></dt>
                     <dd class='other col-8'>
-                        <select id='act-value1' name='not-act-in' multiple></select>
+                        <input name='not-act-in-grp' type='hidden'>
+                        <select id='act-value1' name='not-act-in' onchange='get_all_optgrp(this)'  multiple></select>
                     </dd>
 
                     <dt class='other col-4'><label for='act-value2'>Actionable Mutation Types</label></dt>
                     <dd class='other col-4'>
-                        <select id='act-value2' name='mut-type' multiple>
+                        <input name='mut-type-grp' type='hidden'>
+                        <select id='act-value2' name='mut-type' onchange='get_all_optgrp(this)'  multiple>
                             <option>GOF</option>
                             <option>LOF</option>
                             <option>CN Loss</option>
@@ -170,15 +173,12 @@
     <script src="{% static 'js/autosize.min.js' %}"></script>
     <script src="{% static 'js/detail.js' %}"></script>
     <script>
-        function enable_second(element) {
-            if ($(element).text().includes('Reviewed'))
-                $($(element).parents('dd').children()[2]).removeAttr('disabled')
-        }
-
-        function update_notes(text) {
-            $.each($("[id*='gene_curation_notes']"), function (i, sub_elem) {
-                $(sub_elem).val(text.value);
+        function get_all_optgrp(element) {
+            let resultArray = [];
+            $(element).find('option:selected').each(function () {
+                resultArray.push($(this).parent().attr('label'));
             });
+            $(`[name='${element.name}-grp']`).val(resultArray);
         }
 
         add_options("{% static 'data/so_dx.json' %}", "#act-value0,#act-value1");
@@ -187,11 +187,6 @@
                 let raw_value;
                 if (!key.id.includes('2')) {
                     raw_value = key.id.includes('0') ? {{ item.gene.actionability|filter:'actionable' | safe }} : $(key).val({{ item.gene.actionability|filter:'not_actionable' | safe }});
-                    /*$(key).children().each((_, opt) => {
-                        console.log(opt)
-                        if ($(opt).text().includes('Sex Cord Stromal Tumor')) $(opt).attr('selected', 'True')
-                        else console.log(opt)
-                    })*/
                 } else raw_value = {{ item.gene.actionability|filter:'mut_type' | safe }};
                 setTimeout(() => {
                     $(key).val(raw_value)
@@ -202,8 +197,6 @@
                     });
                 }, 3000)
             });
-
-
             autosize(document.querySelectorAll('textarea'));
 
             // Detail Tab height Set-up
@@ -265,9 +258,8 @@
             func_sig.attr('onchange', "tierChange($(this), ['Benign', 'None'])").attr('onload', "tierChange($(this), ['Benign', 'None'])");
             tierChange(func_sig, ['Benign', 'None']);
 
-            $("[id*='func'][id*='content']").each(function () {
-                let elem = $(this);
-                elem.val(elem.attr('option'))
+            $("[id*='func'][id*='content']").each(function (_, elem) {
+                $(elem).val($(elem).attr('option'))
             });
 
             $('.card-header').attr('data-bs-target', function () {

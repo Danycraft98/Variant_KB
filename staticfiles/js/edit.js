@@ -152,6 +152,16 @@ function add_options(file, div_id) {
     });
 }
 
+function enable_second(element) {
+    if ($(element).text().includes('Reviewed'))
+        $($(element).parents('dd').children()[2]).removeAttr('disabled')
+}
+
+function update_notes(text) {
+    $.each($("[id*='gene_curation_notes']"), function (i, sub_elem) {
+        $(sub_elem).val(text.value);
+    });
+}
 
 function submitMsg() {
     $('hidden').removeAttr('hidden')

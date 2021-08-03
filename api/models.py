@@ -68,6 +68,7 @@ class GeneField(BaseModel):
         ('not_actionable', 'Not Actionable In'),
         ('mut_type', 'Actionable Mutation Types'),
     ])
+    group = models.CharField(max_length=50, null=True, blank=True)
     value = models.CharField(max_length=50, default='')
     gene = models.ForeignKey(Gene, related_name='actionability', on_delete=models.CASCADE)
 
