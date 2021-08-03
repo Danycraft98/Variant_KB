@@ -25,13 +25,12 @@ def exec_method(obj, item=None):
 
 
 @register.filter('filter')
-def gene_filter(obj, filter_txt):
+def detailed_filter(obj, filter_txt):
     try:
         raw_list = obj.filter(name=filter_txt)
-        return [field.value for field in raw_list]
+        return [[field.group, field.value] for field in raw_list] if filter_txt != 'mut_type' else [field.value for field in raw_list]
     except AttributeError:
         print('AttributeError')
-
 
 
 @register.filter

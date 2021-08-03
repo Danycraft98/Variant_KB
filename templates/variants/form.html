@@ -42,13 +42,12 @@
                     <dt class='other col-4'><label for='act-value1'>Not Actionable In</label></dt>
                     <dd class='other col-8'>
                         <input name='not-act-in-grp' type='hidden'>
-                        <select id='act-value1' name='not-act-in' onchange='get_all_optgrp(this)'  multiple></select>
+                        <select id='act-value1' name='not-act-in' onchange='get_all_optgrp(this)' multiple></select>
                     </dd>
 
                     <dt class='other col-4'><label for='act-value2'>Actionable Mutation Types</label></dt>
                     <dd class='other col-4'>
-                        <input name='mut-type-grp' type='hidden'>
-                        <select id='act-value2' name='mut-type' onchange='get_all_optgrp(this)'  multiple>
+                        <select id='act-value2' name='mut-type' onchange='get_all_optgrp(this)' multiple>
                             <option>GOF</option>
                             <option>LOF</option>
                             <option>CN Loss</option>
@@ -184,18 +183,21 @@
         add_options("{% static 'data/so_dx.json' %}", "#act-value0,#act-value1");
         $(document).ready(function () {
             $("[id^='act-value']").each(function (_, key) {
-                let raw_value;
+                let group_names = [];
                 if (!key.id.includes('2')) {
-                    raw_value = key.id.includes('0') ? {{ item.gene.actionability|filter:'actionable' | safe }} : $(key).val({{ item.gene.actionability|filter:'not_actionable' | safe }});
-                } else raw_value = {{ item.gene.actionability|filter:'mut_type' | safe }};
-                setTimeout(() => {
-                    $(key).val(raw_value)
-
-                    $(key).attr('style', 'width:100%;').select2({
-                        selectionCssClass: "form-select", allowClear: false,
-                        tags: true, width: 'style', matcher: modelMatcher
+                    $(key.id.includes('0') ? {{ item.gene.actionability|filter:'actionable' | safe }} : {{ item.gene.actionability|filter:'not_actionable' | safe }}).each((_, item) => {
+                        $(key).find(`optgroup[label='${item[0]}'] option[value='${item[1]}']`).attr('selected', '');
+                        group_names.push(item[0]);
                     });
-                }, 3000)
+                    $(`[name='${key.name}-grp']`).val(group_names);
+                } else {
+                    $(key).val({{ item.gene.actionability|filter:'mut_type' | safe }});
+                }
+
+                $(key).attr('style', 'width:100%;').select2({
+                    selectionCssClass: "form-select", allowClear: false,
+                    tags: true, width: 'style', matcher: modelMatcher
+                });
             });
             autosize(document.querySelectorAll('textarea'));
 

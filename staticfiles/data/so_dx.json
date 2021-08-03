@@ -1,0 +1,15 @@
+﻿{
+    "None": [""],
+    "Hereditary Panel - Somatic DICER1": ["Sex Cord Stromal Tumor"],
+    "BCR-ABL1 KDM": ["BCR-ABL1 KDM"],
+    "Myeloid Panel":["AML", "MPN", "ALL"],
+    "KIT ex 17 Sanger": ["Mastocytosis", "JAK2/CALR", "MPN"],
+    "TST15":["Colorectal Cancer", "Skin Cancer", "GIST", "NSCLC", "Sex Cord Stromal Tumor", "CLL"],
+    "IDH1/2":["Glioma", "AML"],
+    "Melanoma Panel":["Skin Cancer", "NSCLC"],
+    "PRKD1 Sanger":["PLGA"],
+    "Somatic BRCA":["High Grade Serous Carcinoma"],
+    "Oncomine":["Urothelial Carcinoma", "NSCLC", "Breast Cancer"],
+    "BioDiva/Venus":["High Grade Serous Carcinoma", "Cervical Cancer", "Endometrial Cancer", "Adult Ovarian Granulosa Cell Tumour", "Hydatidiform Mole"],
+    "OCTANE":["Brain/CNS Cancer", "Colorectal Cancer", "Neuroendocrine Tumour", "Adrenal Carcinoma", "Bladder Cancer", "Penile Cancer", "Prostate Cancer", "Renal Cancer", "Cervical Cancer", "High Grade Serous Carcinoma", "Endometrial Cancer", "Esophageal Cancer", "Nasopharyngeal Cancer", "Oropharyngeal Cancer", "Salivary Cancer", "Thyroid Cancer", "Liver Cancer", "Lung Cancer", "Pancreatobiliary Cancer", "Sarcoma", "Cancer of Unknown Primary"]
+}

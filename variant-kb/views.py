@@ -77,14 +77,14 @@ def variant(request, gene_name, protein):
         else:
             print(param.get('gene_form').errors)
 
-        for grp, val in zip(request.POST.getlist('act-in-grp'), request.POST.getlist('act-in')):
+        for grp, val in zip(request.POST.get('act-in-grp', '').split(','), request.POST.getlist('act-in')):
             GeneField.objects.get_or_create(gene=item.gene, group=grp, name='actionable', value=val)
 
-        for grp, val in zip(request.POST.getlist('not-act-in-grp'), request.POST.getlist('not-act-in')):
+        for grp, val in zip(request.POST.get('not-act-in-grp', '').split(','), request.POST.getlist('not-act-in')):
             GeneField.objects.get_or_create(gene=item.gene, group=grp, name='not_actionable', value=val)
 
-        for grp, val in zip(request.POST.getlist('mut-type-grp'), request.POST.getlist('mut-type')):
-            GeneField.objects.get_or_create(gene=item.gene, group=grp, name='mut_type', value=val)
+        for val in request.POST.getlist('mut-type'):
+            GeneField.objects.get_or_create(gene=item.gene, group='', name='mut_type', value=val)
 
         final_save = param.get('gene_form').is_valid()
         for formset in param.get('forms'):
