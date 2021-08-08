@@ -47,7 +47,7 @@
                 <dt class='col-4 my-1'>Actionable Mutation Types</dt>
                 <dd class='col-8 my-1'>
                     {% for item in item.gene.actionability|filter:'mut_type' %}
-                        {{ item.1 }}{% if not forloop.last %}, {% endif %}
+                        {{ item }}{% if not forloop.last %}, {% endif %}
                     {% endfor %}
                 </dd>
 
