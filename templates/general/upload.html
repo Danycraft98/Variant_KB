@@ -17,11 +17,11 @@
         <!-- Page Heading -->
         <div class='card-header'>
             <label for='none' class='mr-2'>
-                <input type='radio' id='none' name='select_type' onclick="selectAll(this)" checked> Deselect All Variants
+                <input type='radio' id='none' name='select_type' onclick="selectAll(this)"> Deselect All Variants
             </label>
 
             <label for='all' class='mr-2'>
-                <input type='radio' id='all' name='select_type' onclick="selectAll(this)"> Select All Variants
+                <input type='radio' id='all' name='select_type' onclick="selectAll(this)" checked> Select All Variants
             </label>
 
             <label for='new' class='mr-2'>
@@ -55,6 +55,7 @@
             let item = $(this).find('td:first');
             let input = $(document.createElement('INPUT'));
             input.attr('type', 'checkbox')
+                .attr('checked', '')
                 .attr('name', 'submit')
                 .addClass(function () {
                     return $(item).parents('table').hasClass('new') ? 'new' : 'exists';
